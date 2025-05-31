@@ -7,6 +7,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configuration } from './config';
 import { UserModule } from './modules/user/user.module';
+import { SportModule } from './modules/sport/sport.module';
 @Module({
   imports: [
     // Configuration
@@ -33,6 +34,7 @@ import { UserModule } from './modules/user/user.module';
       inject: [ConfigService],
     }),
     UserModule,
+    SportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -2,13 +2,42 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Sport {
+  id: Int!
+  name: String!
+  userFavoriteSports: [UserFavoriteSport!]!
+  createdAt: DateTime!
+  userCount: Int!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type UserFavoriteSport {
+  id: Int!
+  userId: Int!
+  sportId: Int!
+  user: User!
+  sport: Sport!
+  createdAt: DateTime!
+}
+
 type User {
-  id: String!
+  id: Int!
   phoneNumber: String!
   isVerified: Boolean!
   status: UserStatus!
   role: UserRole!
-  avatarUrl: String
+  avatarId: Int
+  fullName: String
+  dob: DateTime
+  sex: UserSex
+  address: String
+  userType: UserType
+  level: UserLevel
+  favoriteSports: [UserFavoriteSport!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -26,19 +55,42 @@ enum UserRole {
   OWNER
 }
 
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
+enum UserSex {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum UserType {
+  PLAYER
+  COACH
+}
+
+enum UserLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  PRO
+}
 
 type Query {
-  user(id: String!): User!
+  users: [User!]!
+  user(id: Int!): User!
+  sports: [Sport!]!
+  sport(id: Int!): Sport!
+  sportWithUserCount(id: Int!): Sport!
+  userFavoriteSports(userId: Int!): [Sport!]!
 }
 
 type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
-  removeUser(id: String!): User!
+  removeUser(id: Int!): User!
+  createSport(createSportInput: CreateSportInput!): Sport!
+  updateSport(updateSportInput: UpdateSportInput!): Sport!
+  removeSport(id: Int!): Sport!
+  addFavoriteSport(addFavoriteSportInput: AddFavoriteSportInput!): UserFavoriteSport!
+  removeFavoriteSport(userId: Int!, sportId: Int!): Boolean!
 }
 
 input CreateUserInput {
@@ -53,5 +105,21 @@ input UpdateUserInput {
   role: UserRole
   status: UserStatus
   avatarUrl: String
-  id: String!
+  id: Int!
+}
+
+input CreateSportInput {
+  name: String!
+  description: String!
+}
+
+input UpdateSportInput {
+  id: Int!
+  name: String
+  description: String
+}
+
+input AddFavoriteSportInput {
+  userId: Int!
+  sportId: Int!
 }

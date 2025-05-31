@@ -1,7 +1,14 @@
-import { ObjectType, Field, registerEnumType } from '@nestjs/graphql';
-import { Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { PrimaryGeneratedColumn } from 'typeorm';
-import { Entity } from 'typeorm';
+import { ObjectType, Field, registerEnumType, Int } from '@nestjs/graphql';
+import {
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  PrimaryGeneratedColumn,
+  Entity,
+  OneToMany,
+} from 'typeorm';
+import { UserFavoriteSport } from '../../sport/entities/user-favorite-sport.entity';
+
 export enum UserStatus {
   PENDING = 'pending',
   ACTIVE = 'active',
@@ -9,26 +16,42 @@ export enum UserStatus {
   BANNED = 'banned',
 }
 
-registerEnumType(UserStatus, {
-  name: 'UserStatus',
-});
-
 export enum UserRole {
   CUSTOMER = 'customer',
   ADMIN = 'admin',
   OWNER = 'owner',
 }
 
-registerEnumType(UserRole, {
-  name: 'UserRole',
-});
+export enum UserSex {
+  MALE = 'male',
+  FEMALE = 'female',
+  OTHER = 'other',
+}
+
+export enum UserType {
+  PLAYER = 'player',
+  COACH = 'coach',
+}
+
+export enum UserLevel {
+  BEGINNER = 'beginner',
+  INTERMEDIATE = 'intermediate',
+  ADVANCED = 'advanced',
+  PRO = 'pro',
+}
+
+registerEnumType(UserStatus, { name: 'UserStatus' });
+registerEnumType(UserRole, { name: 'UserRole' });
+registerEnumType(UserSex, { name: 'UserSex' });
+registerEnumType(UserType, { name: 'UserType' });
+registerEnumType(UserLevel, { name: 'UserLevel' });
 
 @ObjectType()
 @Entity({ name: 'users' })
 export class User {
-  @Field(() => String)
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @Field(() => Int)
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Field()
   @Column({ unique: true })
@@ -52,12 +75,40 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;
 
+  @Field(() => Int, { nullable: true })
+  @Column({ nullable: true })
+  avatarId?: number;
+
   @Field({ nullable: true })
   @Column({ nullable: true })
-  avatarUrl?: string;
+  fullName?: string;
 
+  @Field({ nullable: true })
+  @Column({ type: 'date', nullable: true })
+  dob?: Date;
+
+  @Field(() => UserSex, { nullable: true })
+  @Column({ type: 'enum', enum: UserSex, nullable: true })
+  sex?: UserSex;
+
+  @Field({ nullable: true })
   @Column({ nullable: true })
-  avatarPublicId?: string;
+  address?: string;
+
+  @Field(() => UserType, { nullable: true })
+  @Column({ type: 'enum', enum: UserType, nullable: true })
+  userType?: UserType;
+
+  @Field(() => UserLevel, { nullable: true })
+  @Column({ type: 'enum', enum: UserLevel, nullable: true })
+  level?: UserLevel;
+
+  @Field(() => [UserFavoriteSport])
+  @OneToMany(
+    () => UserFavoriteSport,
+    (userFavoriteSport) => userFavoriteSport.user,
+  )
+  favoriteSports: UserFavoriteSport[];
 
   @Field()
   @CreateDateColumn()
