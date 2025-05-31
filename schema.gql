@@ -91,21 +91,32 @@ type Mutation {
   removeSport(id: Int!): Sport!
   addFavoriteSport(addFavoriteSportInput: AddFavoriteSportInput!): UserFavoriteSport!
   removeFavoriteSport(userId: Int!, sportId: Int!): Boolean!
+  checkExistingUser(phoneNumber: String!): User!
+  authenticate(phoneNumber: String!, otp: String!): User!
+  resetOTP(phoneNumber: String!): Boolean!
 }
 
 input CreateUserInput {
   phoneNumber: String!
   role: UserRole
   status: UserStatus
+  verifyCode: String
+  verifyCodeExpiresAt: DateTime
   avatarUrl: String
+  isVerified: Boolean
+  userType: UserType
 }
 
 input UpdateUserInput {
   phoneNumber: String
   role: UserRole
   status: UserStatus
+  verifyCode: String
+  verifyCodeExpiresAt: DateTime
   avatarUrl: String
-  id: Int!
+  isVerified: Boolean
+  userType: UserType
+  id: Int
 }
 
 input CreateSportInput {

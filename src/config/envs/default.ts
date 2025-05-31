@@ -22,4 +22,6 @@ export const config = {
   hello: 'world',
   jwtSecret: process.env.JWT_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+  encryptionKey: 'your-secret-key-32-chars-long!!',
+  ivLength: 16,
 };

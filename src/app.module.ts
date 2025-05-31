@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configuration } from './config';
 import { UserModule } from './modules/user/user.module';
 import { SportModule } from './modules/sport/sport.module';
+import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     // Configuration
@@ -35,6 +36,7 @@ import { SportModule } from './modules/sport/sport.module';
     }),
     UserModule,
     SportModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
