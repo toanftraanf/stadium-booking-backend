@@ -67,6 +67,13 @@ export class User {
   @Column({ nullable: true, type: 'timestamp' })
   verifyCodeExpiresAt?: Date;
 
+  @Field({ nullable: true })
+  @Column({ unique: true, nullable: true })
+  email?: string;
+
+  @Column({ unique: true, nullable: true })
+  googleId?: string;
+
   @Field(() => UserStatus)
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.PENDING })
   status: UserStatus;

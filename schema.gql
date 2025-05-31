@@ -28,6 +28,7 @@ type User {
   id: Int!
   phoneNumber: String!
   isVerified: Boolean!
+  email: String
   status: UserStatus!
   role: UserRole!
   avatarId: Int
