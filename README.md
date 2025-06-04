@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # Stadium Booking Backend
 
 A backend API for the Stadium Booking mobile app, built with [NestJS](https://nestjs.com/) and designed for integration with a React Native (Expo) frontend. Supports user authentication via Google OAuth, OTP login, and user/sport management.
@@ -98,4 +100,4 @@ The server will start on the port specified in your `.env` (default: 8089).
 
 ## License
 
-MIT
+[MIT](https://opensource.org/licenses/MIT)
