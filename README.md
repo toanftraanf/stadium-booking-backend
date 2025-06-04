@@ -85,6 +85,39 @@ The server will start on the port specified in your `.env` (default: 8089).
 - `npm run test` — Run unit tests
 - `npm run test:e2e` — Run end-to-end tests
 
+## Docker Usage
+
+### Build and Run with Docker (Production)
+
+1. Build the Docker image:
+   ```bash
+   docker build -t stadium-booking-backend .
+   ```
+2. Run the container:
+   ```bash
+   docker run --env-file .env -p 8089:8089 stadium-booking-backend
+   ```
+
+### Build and Run with Docker (Development)
+
+1. Build the development image:
+   ```bash
+   docker build -f Dockerfile.dev -t stadium-booking-backend-dev .
+   ```
+2. Run the development container:
+   ```bash
+   docker run --env-file .env -p 8089:8089 stadium-booking-backend-dev
+   ```
+
+### Using Docker Compose (Backend + PostgreSQL)
+
+1. Make sure your `.env` file is configured for the database service in `docker-compose.yml` (e.g., `DB_HOST=db`, `DB_PORT=5432`).
+2. Start all services:
+   ```bash
+   docker-compose up --build
+   ```
+3. The backend will be available at `http://localhost:8089` and PostgreSQL at `localhost:5432`.
+
 ## Project Structure
 
 - `src/modules/auth` — Authentication logic (Google, OTP)
