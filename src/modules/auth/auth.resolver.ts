@@ -1,8 +1,8 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { AuthService } from './auth.service';
 import { UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../user/entities/user.entity';
+import { AuthService } from './auth.service';
 import { OtpService } from './otp.service';
 
 @Resolver(() => User)
