@@ -1,98 +1,101 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Stadium Booking Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A backend API for the Stadium Booking mobile app, built with [NestJS](https://nestjs.com/) and designed for integration with a React Native (Expo) frontend. Supports user authentication via Google OAuth, OTP login, and user/sport management.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- User authentication (Google OAuth for mobile, OTP for phone)
+- User and sport management
+- GraphQL API
+- CORS configured for Expo/React Native development
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Getting Started
 
-## Project setup
+### Prerequisites
+
+- Node.js (v18)
+- npm
+- PostgreSQL
+
+### Installation
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
+### Environment Variables
+
+Create a `.env` file in the project root. Example:
+
+```env
+PORT=8089
+NODE_ENV=development
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=yourpassword
+DB_NAME=stadium_booking
+JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=your-google-client-callback-url
+```
+
+**Important:**
+
+- The `GOOGLE_CALLBACK_URL` must match the redirect URI set in your Google Cloud Console and Expo app.
+- For Expo/React Native, use the format: `https://auth.expo.io/@<expo-username>/<app-slug>`
+
+### Running the Server
 
 ```bash
-# development
-$ npm run start
+# Development
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Production
+npm run start:prod
 ```
 
-## Run tests
+The server will start on the port specified in your `.env` (default: 8089).
 
-```bash
-# unit tests
-$ npm run test
+### CORS & Expo Setup
 
-# e2e tests
-$ npm run test:e2e
+- CORS is pre-configured to allow requests from Expo Go and your local network.
+- Make sure your Expo app uses the correct backend URL (e.g., `http://<your-ip>:8089`).
 
-# test coverage
-$ npm run test:cov
-```
+### Google OAuth for Expo/React Native
 
-## Deployment
+1. In Google Cloud Console, set the redirect URI to:
+   ```
+   https://auth.expo.io/@toantran.11/stadium-booking-frontend
+   ```
+2. In your Expo app, use `expo-auth-session` with `useProxy: true` and the same redirect URI.
+3. The backend exposes a `googleAuthMobile(idToken: String!): User!` mutation for mobile login.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### GraphQL Playground
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- Access the GraphQL playground at `http://localhost:8089/graphql` (if enabled in your environment).
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+## Scripts
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- `npm run start:dev` — Start in development mode with hot reload
+- `npm run start:prod` — Start in production mode
+- `npm run test` — Run unit tests
+- `npm run test:e2e` — Run end-to-end tests
 
-## Resources
+## Project Structure
 
-Check out a few resources that may come in handy when working with NestJS:
+- `src/modules/auth` — Authentication logic (Google, OTP)
+- `src/modules/user` — User management
+- `src/modules/sport` — Sport management
+- `src/config` — Environment and app configuration
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Useful Links
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- [NestJS Documentation](https://docs.nestjs.com/)
+- [Expo AuthSession Docs](https://docs.expo.dev/guides/authentication/)
+- [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT
