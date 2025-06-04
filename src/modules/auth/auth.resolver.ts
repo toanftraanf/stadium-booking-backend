@@ -1,5 +1,7 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { User } from '../user/entities/user.entity';
 import { OtpService } from './otp.service';
 
@@ -31,5 +33,22 @@ export class AuthResolver {
     } catch {
       return false;
     }
+  }
+
+  @Mutation(() => User)
+  async googleAuthMobile(@Args('idToken') idToken: string) {
+    return this.authService.validateGoogleMobileToken(idToken);
+  }
+
+  @Query(() => String)
+  googleAuthUrl(): string {
+    return this.authService.getGoogleAuthUrl();
+  }
+
+  @Query(() => User)
+  @UseGuards(AuthGuard('google'))
+  googleAuth() {
+    // This endpoint will be handled by the Google strategy
+    return null;
   }
 }

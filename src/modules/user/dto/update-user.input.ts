@@ -6,6 +6,8 @@ import {
   IsInt,
   IsOptional,
   IsPhoneNumber,
+  IsEmail,
+  IsString,
 } from 'class-validator';
 import { UserRole, UserStatus, UserType } from '../entities/user.entity';
 
@@ -52,4 +54,23 @@ export class UpdateUserInput extends PartialType(CreateUserInput) {
   @IsOptional()
   @IsEnum(UserType)
   userType?: UserType;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  googleId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  fullName?: string;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  avatarId?: number;
 }

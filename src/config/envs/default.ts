@@ -24,4 +24,9 @@ export const config = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   encryptionKey: 'your-secret-key-32-chars-long!!',
   ivLength: 16,
+  google: {
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.GOOGLE_CALLBACK_URL,
+  },
 };

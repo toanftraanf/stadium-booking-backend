@@ -20,6 +20,25 @@ async function bootstrap(): Promise<string> {
   // app.useLogger(app.get(Logger));
   // app.useGlobalInterceptors(new LoggerErrorInterceptor());
 
+  // Enable CORS
+  app.enableCors({
+    origin: [
+      // Backend server URLs
+      'http://localhost:8089',
+      'http://192.168.1.2:8089',
+      // Expo development server URLs
+      'http://localhost:8081',
+      'http://192.168.1.2:8081',
+      'exp://192.168.1.2:8081',
+      // OAuth redirect URIs
+      'https://auth.expo.io',
+      'https://auth.expo.io/@toantran.11/stadium-booking-frontend',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  });
+
   if (isProduction) {
     app.enable('trust proxy');
   }

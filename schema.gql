@@ -81,6 +81,8 @@ type Query {
   sport(id: Int!): Sport!
   sportWithUserCount(id: Int!): Sport!
   userFavoriteSports(userId: Int!): [Sport!]!
+  googleAuthUrl: String!
+  googleAuth: User!
 }
 
 type Mutation {
@@ -95,6 +97,7 @@ type Mutation {
   checkExistingUser(phoneNumber: String!): User!
   authenticate(phoneNumber: String!, otp: String!): User!
   resetOTP(phoneNumber: String!): Boolean!
+  googleAuthMobile(idToken: String!): User!
 }
 
 input CreateUserInput {
@@ -106,6 +109,10 @@ input CreateUserInput {
   avatarUrl: String
   isVerified: Boolean
   userType: UserType
+  email: String
+  googleId: String
+  fullName: String
+  avatarId: Int
 }
 
 input UpdateUserInput {
@@ -117,6 +124,10 @@ input UpdateUserInput {
   avatarUrl: String
   isVerified: Boolean
   userType: UserType
+  email: String
+  googleId: String
+  fullName: String
+  avatarId: Int
   id: Int
 }
 
