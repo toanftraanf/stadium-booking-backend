@@ -65,15 +65,6 @@ The server will start on the port specified in your `.env` (default: 8089).
 - CORS is pre-configured to allow requests from Expo Go and your local network.
 - Make sure your Expo app uses the correct backend URL (e.g., `http://<your-ip>:8089`).
 
-### Google OAuth for Expo/React Native
-
-1. In Google Cloud Console, set the redirect URI to:
-   ```
-   https://auth.expo.io/@toantran.11/stadium-booking-frontend
-   ```
-2. In your Expo app, use `expo-auth-session` with `useProxy: true` and the same redirect URI.
-3. The backend exposes a `googleAuthMobile(idToken: String!): User!` mutation for mobile login.
-
 ### GraphQL Playground
 
 - Access the GraphQL playground at `http://localhost:8089/graphql` (if enabled in your environment).
