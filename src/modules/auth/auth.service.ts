@@ -3,13 +3,12 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import { User } from '../user/entities/user.entity';
-import { OtpService } from './otp.service';
-import { OTP_EXPIRATION_TIME } from 'src/common/constants';
-import { UserStatus } from '../user/entities/user.entity';
-import { OAuth2Client } from 'google-auth-library';
 import { ConfigService } from '@nestjs/config';
+import { OAuth2Client } from 'google-auth-library';
+import { OTP_EXPIRATION_TIME } from 'src/common/constants';
+import { User, UserStatus } from '../user/entities/user.entity';
+import { UserService } from '../user/user.service';
+import { OtpService } from './otp.service';
 
 interface GoogleUser {
   email: string;
@@ -55,7 +54,7 @@ export class AuthService {
    */
   async checkExistingUser(phoneNumber: string): Promise<User> {
     const user = await this.userService.findByPhoneNumber(phoneNumber);
-    const otpCode = this.otpService.sendOTP();
+    const otpCode = await this.otpService.sendOTP(phoneNumber);
     if (!user) {
       return await this.userService.create({
         phoneNumber,
