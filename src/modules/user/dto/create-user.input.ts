@@ -6,8 +6,9 @@ import {
   IsBoolean,
   IsEmail,
   IsString,
+  IsDate,
 } from 'class-validator';
-import { UserRole, UserStatus, UserType } from '../entities/user.entity';
+import { UserRole, UserStatus, UserType, UserSex, UserLevel } from '../entities/user.entity';
 
 @InputType()
 export class CreateUserInput {
@@ -65,4 +66,24 @@ export class CreateUserInput {
   @Field(() => Int, { nullable: true })
   @IsOptional()
   avatarId?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsDate()
+  dob?: Date;
+
+  @Field(() => UserSex, { nullable: true })
+  @IsOptional()
+  @IsEnum(UserSex)
+  sex?: UserSex;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @Field(() => UserLevel, { nullable: true })
+  @IsOptional()
+  @IsEnum(UserLevel)
+  level?: UserLevel;
 }

@@ -1,14 +1,19 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsNotEmpty, IsString, MaxLength, IsOptional } from 'class-validator';
+import { Field, InputType } from '@nestjs/graphql';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 @InputType()
-export class UpdateSportInput {
-  @Field(() => Int)
+export class CreateStadiumInput {
+  @Field()
   @IsNotEmpty()
-  id: number;
+  @IsString()
+  @MaxLength(50)
+  name: string;
 
   @Field()
-  name: string;
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(255)
+  description: string;
 
   @Field()
   googleMap: string;
@@ -26,9 +31,6 @@ export class UpdateSportInput {
   otherContacts: string[];
 
   @Field()
-  description: string;
-
-  @Field()
   startTime: string;
 
   @Field()
@@ -39,4 +41,4 @@ export class UpdateSportInput {
 
   @Field(() => [String])
   sports: string[];
-}
+} 

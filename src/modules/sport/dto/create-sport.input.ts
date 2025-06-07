@@ -14,4 +14,31 @@ export class CreateSportInput {
   @IsString()
   @MaxLength(255)
   description: string;
+
+  @Field()
+  googleMap: string;
+
+  @Field()
+  phone: string;
+
+  @Field()
+  email: string;
+
+  @Field()
+  website: string;
+
+  @Field(() => [String])
+  otherContacts: string[];
+
+  @Field()
+  startTime: string;
+
+  @Field()
+  endTime: string;
+
+  @Field()
+  otherInfo: string;
+
+  @Field(() => [String])
+  sports: string[];
 }

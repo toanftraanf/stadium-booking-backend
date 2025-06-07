@@ -5,6 +5,24 @@
 type Sport {
   id: Int!
   name: String!
+  description: String
+  googleMap: String
+  phone: String
+  email: String
+  website: String
+  otherContacts: [String!]
+  startTime: String
+  endTime: String
+  otherInfo: String
+  sports: [String!]
+  bank: String
+  accountName: String
+  accountNumber: String
+  otherPayments: [String!]
+  pricingImages: [String!]
+  avatarUrl: String
+  bannerUrl: String
+  galleryUrls: [String!]
   userFavoriteSports: [UserFavoriteSport!]!
   createdAt: DateTime!
   userCount: Int!
@@ -74,15 +92,51 @@ enum UserLevel {
   PRO
 }
 
+type Stadium {
+  id: ID!
+  name: String!
+  description: String!
+  address: String!
+  googleMap: String!
+  phone: String!
+  email: String!
+  website: String!
+  otherContacts: [String!]
+  startTime: String!
+  endTime: String!
+  otherInfo: String!
+  sports: [String!]
+  price: Float!
+  area: Float!
+  numberOfFields: Int!
+  rating: Float!
+  status: String!
+  images: [String!]
+  bank: String
+  accountName: String
+  accountNumber: String
+  otherPayments: [String!]
+  pricingImages: [String!]
+  avatarUrl: String
+  bannerUrl: String
+  galleryUrls: [String!]
+  userId: Int!
+  user: User
+  createdAt: DateTime!
+}
+
 type Query {
   users: [User!]!
   user(id: Int!): User!
-  sports: [Sport!]!
-  sport(id: Int!): Sport!
+  findAll: [Sport!]!
+  findOne(id: Int!): Sport!
   sportWithUserCount(id: Int!): Sport!
   userFavoriteSports(userId: Int!): [Sport!]!
   googleAuthUrl: String!
   googleAuth: User!
+  stadiums: [Stadium!]!
+  stadium(id: Int!): Stadium!
+  stadiumsByUser(userId: Int!): [Stadium!]!
 }
 
 type Mutation {
@@ -98,6 +152,10 @@ type Mutation {
   authenticate(phoneNumber: String!, otp: String!): User!
   resetOTP(phoneNumber: String!): Boolean!
   googleAuthMobile(idToken: String!): User!
+  registerOwner(phoneNumber: String!, fullName: String!): User!
+  createStadium(createStadiumInput: CreateStadiumInput!): Stadium!
+  updateStadium(updateStadiumInput: UpdateStadiumInput!): Stadium!
+  removeStadium(id: Int!): Stadium!
 }
 
 input CreateUserInput {
@@ -113,9 +171,14 @@ input CreateUserInput {
   googleId: String
   fullName: String
   avatarId: Int
+  dob: DateTime
+  sex: UserSex
+  address: String
+  level: UserLevel
 }
 
 input UpdateUserInput {
+  id: Int
   phoneNumber: String
   role: UserRole
   status: UserStatus
@@ -128,21 +191,79 @@ input UpdateUserInput {
   googleId: String
   fullName: String
   avatarId: Int
-  id: Int
+  dob: DateTime
+  sex: UserSex
+  address: String
+  level: UserLevel
 }
 
 input CreateSportInput {
   name: String!
   description: String!
+  googleMap: String!
+  phone: String!
+  email: String!
+  website: String!
+  otherContacts: [String!]!
+  startTime: String!
+  endTime: String!
+  otherInfo: String!
+  sports: [String!]!
 }
 
 input UpdateSportInput {
   id: Int!
-  name: String
-  description: String
+  name: String!
+  googleMap: String!
+  phone: String!
+  email: String!
+  website: String!
+  otherContacts: [String!]!
+  description: String!
+  startTime: String!
+  endTime: String!
+  otherInfo: String!
+  sports: [String!]!
 }
 
 input AddFavoriteSportInput {
   userId: Int!
   sportId: Int!
+}
+
+input CreateStadiumInput {
+  name: String!
+  description: String!
+  address: String!
+  googleMap: String!
+  phone: String!
+  email: String!
+  website: String!
+  otherContacts: [String!]!
+  startTime: String!
+  endTime: String!
+  otherInfo: String!
+  sports: [String!]!
+  price: Float!
+  area: Float!
+  numberOfFields: Int!
+  rating: Float
+  status: String
+  images: [String!]
+  userId: Int!
+}
+
+input UpdateStadiumInput {
+  id: Int!
+  name: String
+  googleMap: String
+  phone: String
+  email: String
+  website: String
+  otherContacts: [String!]
+  description: String
+  startTime: String
+  endTime: String
+  otherInfo: String
+  sports: [String!]
 }

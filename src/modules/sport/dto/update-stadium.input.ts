@@ -2,7 +2,7 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsNotEmpty, IsString, MaxLength, IsOptional } from 'class-validator';
 
 @InputType()
-export class UpdateSportInput {
+export class UpdateStadiumInput {
   @Field(() => Int)
   @IsNotEmpty()
   id: number;
@@ -39,4 +39,4 @@ export class UpdateSportInput {
 
   @Field(() => [String])
   sports: string[];
-}
+} 

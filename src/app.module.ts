@@ -9,6 +9,8 @@ import { configuration } from './config';
 import { UserModule } from './modules/user/user.module';
 import { SportModule } from './modules/sport/sport.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { StadiumModule } from './modules/stadium/stadium.module';
+
 @Module({
   imports: [
     // Configuration
@@ -37,6 +39,7 @@ import { AuthModule } from './modules/auth/auth.module';
     UserModule,
     SportModule,
     AuthModule,
+    StadiumModule,
   ],
   controllers: [AppController],
   providers: [AppService],

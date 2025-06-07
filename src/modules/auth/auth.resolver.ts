@@ -10,7 +10,7 @@ export class AuthResolver {
   constructor(
     private readonly authService: AuthService,
     private readonly otpService: OtpService,
-  ) {}
+  ) { }
 
   @Mutation(() => User)
   async checkExistingUser(@Args('phoneNumber') phoneNumber: string) {
@@ -38,6 +38,14 @@ export class AuthResolver {
   @Mutation(() => User)
   async googleAuthMobile(@Args('idToken') idToken: string) {
     return this.authService.validateGoogleMobileToken(idToken);
+  }
+
+  @Mutation(() => User)
+  async registerOwner(
+    @Args('phoneNumber') phoneNumber: string,
+    @Args('fullName') fullName: string,
+  ) {
+    return this.authService.registerOwner(phoneNumber, fullName);
   }
 
   @Query(() => String)

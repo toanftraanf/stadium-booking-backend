@@ -91,7 +91,7 @@ export class User {
   fullName?: string;
 
   @Field({ nullable: true })
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   dob?: Date;
 
   @Field(() => UserSex, { nullable: true })

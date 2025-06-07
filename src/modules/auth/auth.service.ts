@@ -2,11 +2,12 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
 import { OTP_EXPIRATION_TIME } from 'src/common/constants';
-import { User, UserStatus } from '../user/entities/user.entity';
+import { User, UserStatus, UserRole } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { OtpService } from './otp.service';
 
@@ -147,5 +148,28 @@ export class AuthService {
       `prompt=consent`;
 
     return authUrl;
+  }
+
+  /**
+   * Register a new stadium owner
+   * @param phoneNumber - The phone number
+   * @param fullName - The full name
+   * @returns The created user
+   */
+  async registerOwner(phoneNumber: string, fullName: string): Promise<User> {
+    const existingUser = await this.userService.findByPhoneNumber(phoneNumber);
+    if (existingUser) {
+      throw new BadRequestException('Số điện thoại đã được đăng ký');
+    }
+
+    const otpCode = await this.otpService.sendOTP(phoneNumber);
+    return await this.userService.create({
+      phoneNumber,
+      fullName,
+      role: UserRole.OWNER,
+      isVerified: false,
+      verifyCode: otpCode,
+      verifyCodeExpiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME),
+    });
   }
 }

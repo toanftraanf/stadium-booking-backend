@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthResolver } from './auth.resolver';
-import { UserModule } from '../user/user.module';
-import { OtpService } from './otp.service';
+import { ConfigModule } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { PassportModule } from '@nestjs/passport';
+import { UserModule } from '../user/user.module';
+import { AuthResolver } from './auth.resolver';
+import { AuthService } from './auth.service';
+import { OtpService } from './otp.service';
 import { GoogleStrategy } from './strategies/google.strategy';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -19,4 +19,4 @@ import { ConfigModule } from '@nestjs/config';
   providers: [AuthResolver, AuthService, OtpService, GoogleStrategy],
   exports: [AuthService, OtpService],
 })
-export class AuthModule {}
+export class AuthModule { }

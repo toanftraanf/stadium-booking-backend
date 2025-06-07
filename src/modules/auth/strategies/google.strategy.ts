@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import {
-  Strategy,
-  VerifyCallback,
   Profile,
+  Strategy,
   StrategyOptions,
+  VerifyCallback,
 } from 'passport-google-oauth20';
-import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 
 interface GoogleUser {
@@ -40,7 +40,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<any> {
     const email: string =
       Array.isArray(profile.emails) &&
-      typeof profile.emails[0]?.value === 'string'
+        typeof profile.emails[0]?.value === 'string'
         ? profile.emails[0].value
         : '';
     const googleId: string = typeof profile.id === 'string' ? profile.id : '';

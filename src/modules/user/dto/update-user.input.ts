@@ -1,5 +1,4 @@
-import { CreateUserInput } from './create-user.input';
-import { InputType, Field, PartialType, Int } from '@nestjs/graphql';
+import { InputType, Field, Int } from '@nestjs/graphql';
 import {
   IsBoolean,
   IsEnum,
@@ -8,11 +7,12 @@ import {
   IsPhoneNumber,
   IsEmail,
   IsString,
+  IsDate,
 } from 'class-validator';
-import { UserRole, UserStatus, UserType } from '../entities/user.entity';
+import { UserRole, UserStatus, UserType, UserSex, UserLevel } from '../entities/user.entity';
 
 @InputType()
-export class UpdateUserInput extends PartialType(CreateUserInput) {
+export class UpdateUserInput {
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt()
@@ -73,4 +73,24 @@ export class UpdateUserInput extends PartialType(CreateUserInput) {
   @Field(() => Int, { nullable: true })
   @IsOptional()
   avatarId?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsDate()
+  dob?: Date;
+
+  @Field(() => UserSex, { nullable: true })
+  @IsOptional()
+  @IsEnum(UserSex)
+  sex?: UserSex;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @Field(() => UserLevel, { nullable: true })
+  @IsOptional()
+  @IsEnum(UserLevel)
+  level?: UserLevel;
 }
