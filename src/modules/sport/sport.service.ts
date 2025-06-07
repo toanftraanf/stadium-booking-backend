@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Sport } from './entities/sport.entity';
-import { UserFavoriteSport } from './entities/user-favorite-sport.entity';
+import { AddFavoriteSportInput } from './dto/add-favorite-sport.input';
 import { CreateSportInput } from './dto/create-sport.input';
 import { UpdateSportInput } from './dto/update-sport.input';
-import { AddFavoriteSportInput } from './dto/add-favorite-sport.input';
+import { Sport } from './entities/sport.entity';
+import { UserFavoriteSport } from './entities/user-favorite-sport.entity';
 
 @Injectable()
 export class SportService {

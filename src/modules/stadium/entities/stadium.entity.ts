@@ -1,11 +1,11 @@
-import { ObjectType, Field, Int, ID, Float } from '@nestjs/graphql';
+import { Field, Float, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   JoinColumn,
   ManyToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
@@ -139,4 +139,4 @@ export class Stadium {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

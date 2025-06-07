@@ -1,14 +1,20 @@
-import { InputType, Field, Int } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import {
-  IsPhoneNumber,
-  IsOptional,
-  IsEnum,
   IsBoolean,
-  IsEmail,
-  IsString,
   IsDate,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
 } from 'class-validator';
-import { UserRole, UserStatus, UserType, UserSex, UserLevel } from '../entities/user.entity';
+import {
+  UserLevel,
+  UserRole,
+  UserSex,
+  UserStatus,
+  UserType,
+} from '../entities/user.entity';
 
 @InputType()
 export class CreateUserInput {

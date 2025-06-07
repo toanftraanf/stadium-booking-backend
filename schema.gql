@@ -5,24 +5,6 @@
 type Sport {
   id: Int!
   name: String!
-  description: String
-  googleMap: String
-  phone: String
-  email: String
-  website: String
-  otherContacts: [String!]
-  startTime: String
-  endTime: String
-  otherInfo: String
-  sports: [String!]
-  bank: String
-  accountName: String
-  accountNumber: String
-  otherPayments: [String!]
-  pricingImages: [String!]
-  avatarUrl: String
-  bannerUrl: String
-  galleryUrls: [String!]
   userFavoriteSports: [UserFavoriteSport!]!
   createdAt: DateTime!
   userCount: Int!
@@ -92,6 +74,12 @@ enum UserLevel {
   PRO
 }
 
+type AuthResponse {
+  user: User!
+  accessToken: String!
+  refreshToken: String!
+}
+
 type Stadium {
   id: ID!
   name: String!
@@ -128,8 +116,8 @@ type Stadium {
 type Query {
   users: [User!]!
   user(id: Int!): User!
-  findAll: [Sport!]!
-  findOne(id: Int!): Sport!
+  sports: [Sport!]!
+  sport(id: Int!): Sport!
   sportWithUserCount(id: Int!): Sport!
   userFavoriteSports(userId: Int!): [Sport!]!
   googleAuthUrl: String!
@@ -149,12 +137,16 @@ type Mutation {
   addFavoriteSport(addFavoriteSportInput: AddFavoriteSportInput!): UserFavoriteSport!
   removeFavoriteSport(userId: Int!, sportId: Int!): Boolean!
   checkExistingUser(phoneNumber: String!): User!
-  authenticate(phoneNumber: String!, otp: String!): User!
+  authenticate(phoneNumber: String!, otp: String!): AuthResponse!
   resetOTP(phoneNumber: String!): Boolean!
-  googleAuthMobile(idToken: String!): User!
+  googleAuthMobile(idToken: String!): AuthResponse!
   registerOwner(phoneNumber: String!, fullName: String!): User!
+  logout(accessToken: String!, refreshToken: String): Boolean!
+  logoutFromAllDevices(userId: Float!): Boolean!
   createStadium(createStadiumInput: CreateStadiumInput!): Stadium!
   updateStadium(updateStadiumInput: UpdateStadiumInput!): Stadium!
+  updateStadiumBank(id: Int!, input: UpdateStadiumBankInput!): Stadium!
+  updateStadiumImages(id: Int!, input: UpdateStadiumImagesInput!): Stadium!
   removeStadium(id: Int!): Stadium!
 }
 
@@ -266,4 +258,20 @@ input UpdateStadiumInput {
   endTime: String
   otherInfo: String
   sports: [String!]
+}
+
+input UpdateStadiumBankInput {
+  id: Int!
+  bank: String
+  accountName: String
+  accountNumber: String
+  otherPayments: [String!]
+  pricingImages: [String!]
+}
+
+input UpdateStadiumImagesInput {
+  id: Int!
+  avatarUrl: String
+  bannerUrl: String
+  galleryUrls: [String!]
 }

@@ -1,18 +1,18 @@
 import {
-  Resolver,
-  Query,
-  Mutation,
   Args,
   Int,
-  ResolveField,
+  Mutation,
   Parent,
+  Query,
+  ResolveField,
+  Resolver,
 } from '@nestjs/graphql';
-import { SportService } from './sport.service';
-import { Sport } from './entities/sport.entity';
-import { UserFavoriteSport } from './entities/user-favorite-sport.entity';
+import { AddFavoriteSportInput } from './dto/add-favorite-sport.input';
 import { CreateSportInput } from './dto/create-sport.input';
 import { UpdateSportInput } from './dto/update-sport.input';
-import { AddFavoriteSportInput } from './dto/add-favorite-sport.input';
+import { Sport } from './entities/sport.entity';
+import { UserFavoriteSport } from './entities/user-favorite-sport.entity';
+import { SportService } from './sport.service';
 
 @Resolver(() => Sport)
 export class SportResolver {

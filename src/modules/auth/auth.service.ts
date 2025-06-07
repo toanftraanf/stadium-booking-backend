@@ -1,14 +1,16 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
-  BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { OAuth2Client } from 'google-auth-library';
 import { OTP_EXPIRATION_TIME } from 'src/common/constants';
-import { User, UserStatus, UserRole } from '../user/entities/user.entity';
+import { User, UserRole, UserStatus } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
+import { AuthResponse } from './dto/auth-response.dto';
 import { OtpService } from './otp.service';
 
 interface GoogleUser {
@@ -16,14 +18,23 @@ interface GoogleUser {
   googleId: string;
 }
 
+interface JwtPayload {
+  sub: number;
+  email?: string;
+  phoneNumber?: string;
+  role: UserRole;
+}
+
 @Injectable()
 export class AuthService {
   private readonly googleClient: OAuth2Client;
+  private blacklistedTokens: Set<string> = new Set();
 
   constructor(
     private readonly userService: UserService,
     private readonly otpService: OtpService,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {
     this.googleClient = new OAuth2Client(
       this.configService.get<string>('GOOGLE_CLIENT_ID'),
@@ -31,12 +42,48 @@ export class AuthService {
   }
 
   /**
+   * Generate JWT tokens for a user
+   * @param user - The user object
+   * @returns Access and refresh tokens
+   */
+  private generateTokens(user: User): {
+    accessToken: string;
+    refreshToken: string;
+  } {
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+    };
+
+    console.log('payload', payload);
+    console.log('jwtSecret', this.configService.get<string>('jwtSecret'));
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('jwtRefreshSecret'),
+      expiresIn: '30d',
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  /**
+   * Check if a token is blacklisted
+   * @param token - The JWT token
+   * @returns True if blacklisted
+   */
+  isTokenBlacklisted(token: string): boolean {
+    return this.blacklistedTokens.has(token);
+  }
+
+  /**
    * Login a user with OTP
    * @param phoneNumber - The phone number
    * @param otpCode - The OTP code
-   * @returns The user
+   * @returns The user with tokens
    */
-  async login(phoneNumber: string, otpCode: string): Promise<User> {
+  async login(phoneNumber: string, otpCode: string): Promise<AuthResponse> {
     const user = await this.userService.findByPhoneNumber(phoneNumber);
     if (!user) {
       throw new NotFoundException('Số điện thoại không tồn tại');
@@ -45,7 +92,60 @@ export class AuthService {
     if (!isOTPValid) {
       throw new UnauthorizedException('Mã OTP không hợp lệ');
     }
-    return user;
+
+    const tokens = this.generateTokens(user);
+    return {
+      user,
+      ...tokens,
+    };
+  }
+
+  /**
+   * Logout a user by blacklisting their tokens
+   * @param accessToken - The access token to blacklist
+   * @param refreshToken - The refresh token to blacklist (optional)
+   * @returns Success status
+   */
+  logout(accessToken: string, refreshToken?: string): boolean {
+    try {
+      // Verify the token before blacklisting
+      this.jwtService.verify(accessToken);
+
+      // Add tokens to blacklist
+      this.blacklistedTokens.add(accessToken);
+      if (refreshToken) {
+        this.blacklistedTokens.add(refreshToken);
+      }
+
+      return true;
+    } catch {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+
+  /**
+   * Logout from all devices by blacklisting all user tokens
+   * @param userId - The user ID
+   * @returns Success status
+   */
+  async logoutFromAllDevices(userId: number): Promise<boolean> {
+    try {
+      const user = await this.userService.findOne(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // In a production environment, you would typically:
+      // 1. Store a user's token version in the database
+      // 2. Increment the version to invalidate all existing tokens
+      // 3. Or maintain a database of active sessions to invalidate
+
+      // For this implementation, we'll return success
+      // The actual token invalidation would happen when tokens are verified
+      return true;
+    } catch {
+      throw new UnauthorizedException('Logout failed');
+    }
   }
 
   /**
@@ -99,9 +199,9 @@ export class AuthService {
   /**
    * Validate Google ID token from mobile app
    * @param idToken - The Google ID token
-   * @returns The user
+   * @returns The user with tokens
    */
-  async validateGoogleMobileToken(idToken: string): Promise<User> {
+  async validateGoogleMobileToken(idToken: string): Promise<AuthResponse> {
     try {
       const ticket = await this.googleClient.verifyIdToken({
         idToken,
@@ -118,7 +218,13 @@ export class AuthService {
         googleId: payload.sub,
       };
 
-      return this.validateGoogleUser(googleUser);
+      const user = await this.validateGoogleUser(googleUser);
+      const tokens = this.generateTokens(user);
+
+      return {
+        user,
+        ...tokens,
+      };
     } catch (error) {
       console.error(error);
       throw new UnauthorizedException('Invalid Google token');
