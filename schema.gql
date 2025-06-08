@@ -93,7 +93,7 @@ type Stadium {
   id: ID!
   name: String!
   description: String!
-  address: String!
+  address: String
   googleMap: String!
   phone: String!
   email: String!

@@ -25,7 +25,7 @@ export class Stadium {
   @Column({ nullable: true })
   description?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   address?: string;
 
