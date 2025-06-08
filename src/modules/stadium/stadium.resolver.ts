@@ -11,6 +11,7 @@ import { CreateStadiumInput } from './dto/create-stadium.input';
 import { UpdateStadiumInput } from './dto/update-stadium.input';
 import { UpdateStadiumBankInput } from './dto/update-stadium-bank.input';
 import { UpdateStadiumImagesInput } from './dto/update-stadium-images.input';
+import { FindStadiumsByAddressInput } from './dto/find-stadiums-by-address.input';
 
 @Resolver(() => Stadium)
 export class StadiumResolver {
@@ -34,6 +35,16 @@ export class StadiumResolver {
   @Query(() => [Stadium], { name: 'stadiumsByUser' })
   findByUserId(@Args('userId', { type: () => Int }) userId: number) {
     return this.stadiumService.findByUserId(userId);
+  }
+
+  @Query(() => [Stadium], { name: 'stadiumsByName' })
+  findByName(@Args('name') name: string) {
+    return this.stadiumService.findByName(name);
+  }
+
+  @Query(() => [Stadium], { name: 'stadiumsByAddress' })
+  findByAddress(@Args('input') input: FindStadiumsByAddressInput) {
+    return this.stadiumService.findByAddress(input);
   }
 
   @Mutation(() => Stadium)

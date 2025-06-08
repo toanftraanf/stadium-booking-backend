@@ -5,24 +5,6 @@
 type Sport {
   id: Int!
   name: String!
-  description: String
-  googleMap: String
-  phone: String
-  email: String
-  website: String
-  otherContacts: [String!]
-  startTime: String
-  endTime: String
-  otherInfo: String
-  sports: [String!]
-  bank: String
-  accountName: String
-  accountNumber: String
-  otherPayments: [String!]
-  pricingImages: [String!]
-  avatarUrl: String
-  bannerUrl: String
-  galleryUrls: [String!]
   userFavoriteSports: [UserFavoriteSport!]!
   createdAt: DateTime!
   userCount: Int!
@@ -96,7 +78,7 @@ type Stadium {
   id: ID!
   name: String!
   description: String!
-  address: String!
+  address: String
   googleMap: String!
   phone: String!
   email: String!
@@ -128,8 +110,8 @@ type Stadium {
 type Query {
   users: [User!]!
   user(id: Int!): User!
-  findAll: [Sport!]!
-  findOne(id: Int!): Sport!
+  sports: [Sport!]!
+  sport(id: Int!): Sport!
   sportWithUserCount(id: Int!): Sport!
   userFavoriteSports(userId: Int!): [Sport!]!
   googleAuthUrl: String!
@@ -137,6 +119,13 @@ type Query {
   stadiums: [Stadium!]!
   stadium(id: Int!): Stadium!
   stadiumsByUser(userId: Int!): [Stadium!]!
+  stadiumsByName(name: String!): [Stadium!]!
+  stadiumsByAddress(input: FindStadiumsByAddressInput!): [Stadium!]!
+}
+
+input FindStadiumsByAddressInput {
+  address: String!
+  radiusKm: Float = 5
 }
 
 type Mutation {
@@ -155,6 +144,8 @@ type Mutation {
   registerOwner(phoneNumber: String!, fullName: String!): User!
   createStadium(createStadiumInput: CreateStadiumInput!): Stadium!
   updateStadium(updateStadiumInput: UpdateStadiumInput!): Stadium!
+  updateStadiumBank(id: Int!, input: UpdateStadiumBankInput!): Stadium!
+  updateStadiumImages(id: Int!, input: UpdateStadiumImagesInput!): Stadium!
   removeStadium(id: Int!): Stadium!
 }
 
@@ -266,4 +257,20 @@ input UpdateStadiumInput {
   endTime: String
   otherInfo: String
   sports: [String!]
+}
+
+input UpdateStadiumBankInput {
+  id: Int!
+  bank: String
+  accountName: String
+  accountNumber: String
+  otherPayments: [String!]
+  pricingImages: [String!]
+}
+
+input UpdateStadiumImagesInput {
+  id: Int!
+  avatarUrl: String
+  bannerUrl: String
+  galleryUrls: [String!]
 }
