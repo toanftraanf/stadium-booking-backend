@@ -2,27 +2,18 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Sport {
+type File {
   id: Int!
-  name: String!
-  userFavoriteSports: [UserFavoriteSport!]!
+  url: String!
+  publicId: String
+  type: String
   createdAt: DateTime!
-  userCount: Int!
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
-
-type UserFavoriteSport {
-  id: Int!
-  userId: Int!
-  sportId: Int!
-  user: User!
-  sport: Sport!
-  createdAt: DateTime!
-}
 
 type User {
   id: Int!
@@ -32,6 +23,7 @@ type User {
   status: UserStatus!
   role: UserRole!
   avatarId: Int
+  avatar: File
   fullName: String
   dob: DateTime
   sex: UserSex
@@ -74,6 +66,23 @@ enum UserLevel {
   PRO
 }
 
+type Sport {
+  id: Int!
+  name: String!
+  userFavoriteSports: [UserFavoriteSport!]!
+  createdAt: DateTime!
+  userCount: Int!
+}
+
+type UserFavoriteSport {
+  id: Int!
+  userId: Int!
+  sportId: Int!
+  user: User!
+  sport: Sport!
+  createdAt: DateTime!
+}
+
 type AuthResponse {
   user: User!
   accessToken: String!
@@ -113,6 +122,17 @@ type Stadium {
   createdAt: DateTime!
 }
 
+type UploadUrlResponse {
+  uploadUrl: String!
+  publicId: String!
+  fields: String
+}
+
+type FileStatsResponse {
+  total: Int!
+  byType: String!
+}
+
 type Query {
   users: [User!]!
   user(id: Int!): User!
@@ -125,6 +145,11 @@ type Query {
   stadiums: [Stadium!]!
   stadium(id: Int!): Stadium!
   stadiumsByUser(userId: Int!): [Stadium!]!
+  files: [File!]!
+  filesByType(type: String!): [File!]!
+  file(id: Int!): File!
+  fileByPublicId(publicId: String!): File!
+  fileStats: FileStatsResponse!
 }
 
 type Mutation {
@@ -148,6 +173,12 @@ type Mutation {
   updateStadiumBank(id: Int!, input: UpdateStadiumBankInput!): Stadium!
   updateStadiumImages(id: Int!, input: UpdateStadiumImagesInput!): Stadium!
   removeStadium(id: Int!): Stadium!
+  seedDefaultAvatar: Boolean!
+  createFile(createFileInput: CreateFileInput!): File!
+  generateUploadUrl(fileUploadInput: FileUploadInput!): UploadUrlResponse!
+  confirmUpload(url: String!, publicId: String!, type: String): File!
+  updateFile(updateFileInput: UpdateFileInput!): File!
+  removeFile(id: Int!): Boolean!
 }
 
 input CreateUserInput {
@@ -274,4 +305,23 @@ input UpdateStadiumImagesInput {
   avatarUrl: String
   bannerUrl: String
   galleryUrls: [String!]
+}
+
+input CreateFileInput {
+  url: String!
+  publicId: String
+  type: String
+}
+
+input FileUploadInput {
+  fileName: String!
+  type: String
+  folder: String
+}
+
+input UpdateFileInput {
+  url: String
+  publicId: String
+  type: String
+  id: Int!
 }
