@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
@@ -15,8 +16,15 @@ import { GoogleStrategy } from './strategies/google.strategy';
     TypeOrmModule.forFeature([User]),
     PassportModule,
     ConfigModule,
+    JwtModule.registerAsync({
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('jwtSecret'),
+        signOptions: { expiresIn: '7d' },
+      }),
+      inject: [ConfigService],
+    }),
   ],
   providers: [AuthResolver, AuthService, OtpService, GoogleStrategy],
   exports: [AuthService, OtpService],
 })
-export class AuthModule { }
+export class AuthModule {}

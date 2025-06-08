@@ -1,13 +1,16 @@
-import { ObjectType, Field, registerEnumType, Int } from '@nestjs/graphql';
+import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
-  PrimaryGeneratedColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { UserFavoriteSport } from '../../sport/entities/user-favorite-sport.entity';
+import { File } from '../../upload/entities/file.entity';
 
 export enum UserStatus {
   PENDING = 'pending',
@@ -85,6 +88,11 @@ export class User {
   @Field(() => Int, { nullable: true })
   @Column({ nullable: true })
   avatarId?: number;
+
+  @Field(() => File, { nullable: true })
+  @ManyToOne(() => File, { nullable: true })
+  @JoinColumn({ name: 'avatarId' })
+  avatar?: File;
 
   @Field({ nullable: true })
   @Column({ nullable: true })

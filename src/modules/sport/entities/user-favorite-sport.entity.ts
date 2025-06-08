@@ -1,14 +1,14 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
-  ManyToOne,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Sport } from './sport.entity';
 import { User } from '../../user/entities/user.entity';
+import { Sport } from './sport.entity';
 
 @ObjectType()
 @Entity({ name: 'user_favorite_sports' })
