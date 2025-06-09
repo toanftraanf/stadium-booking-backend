@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AddFavoriteSportInput } from './dto/add-favorite-sport.input';
@@ -6,6 +6,7 @@ import { CreateSportInput } from './dto/create-sport.input';
 import { UpdateSportInput } from './dto/update-sport.input';
 import { Sport } from './entities/sport.entity';
 import { UserFavoriteSport } from './entities/user-favorite-sport.entity';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class SportService {
@@ -14,6 +15,7 @@ export class SportService {
     private readonly sportRepository: Repository<Sport>,
     @InjectRepository(UserFavoriteSport)
     private readonly userFavoriteSportRepository: Repository<UserFavoriteSport>,
+    private readonly userService: UserService,
   ) {}
 
   async create(createSportInput: CreateSportInput): Promise<Sport> {
@@ -47,8 +49,64 @@ export class SportService {
   async addFavoriteSport(
     input: AddFavoriteSportInput,
   ): Promise<UserFavoriteSport> {
-    const favoriteSport = this.userFavoriteSportRepository.create(input);
-    return this.userFavoriteSportRepository.save(favoriteSport);
+    // Kiểm tra user có tồn tại không
+    try {
+      await this.userService.findOne(input.userId);
+    } catch (error) {
+      throw new BadRequestException(`User with ID ${input.userId} not found`);
+    }
+
+    // Kiểm tra xem đã tồn tại trong favorite chưa
+    const existingFavorite = await this.userFavoriteSportRepository.findOne({
+      where: {
+        userId: input.userId,
+        sportId: input.sportId
+      }
+    });
+
+    if (existingFavorite) {
+      return existingFavorite;
+    }
+
+    // Tạo mới favorite sport
+    const favoriteSport = this.userFavoriteSportRepository.create({
+      userId: input.userId,
+      sportId: input.sportId
+    });
+
+    try {
+      return await this.userFavoriteSportRepository.save(favoriteSport);
+    } catch (error) {
+      // Nếu có lỗi foreign key, tạo sport trước
+      if (error.code === '23503') { // PostgreSQL foreign key violation code
+        // Tạo sport mới với ID tương ứng
+        const sport = this.sportRepository.create({
+          id: input.sportId,
+          name: this.getSportNameById(input.sportId)
+        });
+        await this.sportRepository.save(sport);
+        
+        // Thử lại việc thêm favorite sport
+        return await this.userFavoriteSportRepository.save(favoriteSport);
+      }
+      throw error;
+    }
+  }
+
+  private getSportNameById(id: number): string {
+    const sports = {
+      1: 'Bóng đá',
+      2: 'Cầu lông',
+      3: 'Tennis',
+      4: 'Bóng bàn',
+      5: 'Bóng rổ',
+      6: 'Bóng chuyền',
+      7: 'Bơi lội',
+      8: 'Chạy bộ',
+      9: 'Yoga',
+      10: 'Gym'
+    };
+    return sports[id] || `Sport ${id}`;
   }
 
   async removeFavoriteSport(userId: number, sportId: number): Promise<boolean> {

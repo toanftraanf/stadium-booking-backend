@@ -145,11 +145,18 @@ type Query {
   stadiums: [Stadium!]!
   stadium(id: Int!): Stadium!
   stadiumsByUser(userId: Int!): [Stadium!]!
+  stadiumsByName(name: String!): [Stadium!]!
+  stadiumsByAddress(input: FindStadiumsByAddressInput!): [Stadium!]!
   files: [File!]!
   filesByType(type: String!): [File!]!
   file(id: Int!): File!
   fileByPublicId(publicId: String!): File!
   fileStats: FileStatsResponse!
+}
+
+input FindStadiumsByAddressInput {
+  address: String!
+  radiusKm: Float = 5
 }
 
 type Mutation {
