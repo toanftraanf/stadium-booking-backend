@@ -13,10 +13,4 @@ export class UpdateStadiumBankInput {
 
   @Field({ nullable: true })
   accountNumber?: string;
-
-  @Field(() => [String], { nullable: true })
-  otherPayments?: string[];
-
-  @Field(() => [String], { nullable: true })
-  pricingImages?: string[];
-} 
+}

@@ -41,4 +41,4 @@ export class CreateStadiumInput {
 
   @Field(() => [String])
   sports: string[];
-} 
+}

@@ -1,5 +1,11 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsArray, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEmail,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 @InputType()
 export class UpdateStadiumInput {
@@ -61,4 +67,4 @@ export class UpdateStadiumInput {
   @IsOptional()
   @IsArray()
   sports?: string[];
-} 
+}

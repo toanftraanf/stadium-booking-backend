@@ -1,25 +1,30 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  Int,
-} from '@nestjs/graphql';
-import { StadiumService } from './stadium.service';
-import { Stadium } from './entities/stadium.entity';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CreateStadiumStepsInput } from './dto/create-stadium-steps.input';
 import { CreateStadiumInput } from './dto/create-stadium.input';
-import { UpdateStadiumInput } from './dto/update-stadium.input';
+import { FindStadiumsByAddressInput } from './dto/find-stadiums-by-address.input';
 import { UpdateStadiumBankInput } from './dto/update-stadium-bank.input';
 import { UpdateStadiumImagesInput } from './dto/update-stadium-images.input';
-import { FindStadiumsByAddressInput } from './dto/find-stadiums-by-address.input';
+import { UpdateStadiumInput } from './dto/update-stadium.input';
+import { Stadium } from './entities/stadium.entity';
+import { StadiumService } from './stadium.service';
 
 @Resolver(() => Stadium)
 export class StadiumResolver {
   constructor(private readonly stadiumService: StadiumService) {}
 
   @Mutation(() => Stadium)
-  createStadium(@Args('createStadiumInput') createStadiumInput: CreateStadiumInput) {
+  createStadium(
+    @Args('createStadiumInput') createStadiumInput: CreateStadiumInput,
+  ) {
     return this.stadiumService.create(createStadiumInput);
+  }
+
+  @Mutation(() => Stadium)
+  createStadiumWithSteps(
+    @Args('createStadiumStepsInput')
+    createStadiumStepsInput: CreateStadiumStepsInput,
+  ) {
+    return this.stadiumService.createWithSteps(createStadiumStepsInput);
   }
 
   @Query(() => [Stadium], { name: 'stadiums' })
@@ -48,8 +53,13 @@ export class StadiumResolver {
   }
 
   @Mutation(() => Stadium)
-  updateStadium(@Args('updateStadiumInput') updateStadiumInput: UpdateStadiumInput) {
-    return this.stadiumService.update(updateStadiumInput.id, updateStadiumInput);
+  updateStadium(
+    @Args('updateStadiumInput') updateStadiumInput: UpdateStadiumInput,
+  ) {
+    return this.stadiumService.update(
+      updateStadiumInput.id,
+      updateStadiumInput,
+    );
   }
 
   @Mutation(() => Stadium)
@@ -72,4 +82,4 @@ export class StadiumResolver {
   removeStadium(@Args('id', { type: () => Int }) id: number) {
     return this.stadiumService.remove(id);
   }
-} 
+}

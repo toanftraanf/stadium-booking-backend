@@ -8,6 +8,7 @@ A backend API for the Stadium Booking mobile app, built with [NestJS](https://ne
 
 - User authentication (Google OAuth for mobile, OTP for phone)
 - User and sport management
+- **File upload with Cloudinary integration**
 - GraphQL API
 - CORS configured for Expo/React Native development
 
@@ -41,12 +42,18 @@ JWT_SECRET=your_jwt_secret
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 GOOGLE_CALLBACK_URL=your-google-client-callback-url
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 ```
 
 **Important:**
 
 - The `GOOGLE_CALLBACK_URL` must match the redirect URI set in your Google Cloud Console and Expo app.
 - For Expo/React Native, use the format: `https://auth.expo.io/@<expo-username>/<app-slug>`
+- Get your Cloudinary credentials from [Cloudinary Dashboard](https://cloudinary.com/console)
 
 ### Running the Server
 
@@ -68,6 +75,160 @@ The server will start on the port specified in your `.env` (default: 8089).
 ### GraphQL Playground
 
 - Access the GraphQL playground at `http://localhost:8089/graphql` (if enabled in your environment).
+
+## File Upload with Cloudinary
+
+This project includes a complete file upload system using Cloudinary for cloud storage.
+
+### Setup Cloudinary
+
+1. Create a free account at [Cloudinary](https://cloudinary.com/)
+2. Get your credentials from the [Dashboard](https://cloudinary.com/console)
+3. Add the credentials to your `.env` file:
+   ```env
+   CLOUDINARY_CLOUD_NAME=your-cloud-name
+   CLOUDINARY_API_KEY=your-api-key
+   CLOUDINARY_API_SECRET=your-api-secret
+   ```
+
+### File Upload GraphQL Mutations
+
+#### 1. Generate Upload URL (Frontend)
+
+```graphql
+mutation GenerateUploadUrl($fileUploadInput: FileUploadInput!) {
+  generateUploadUrl(fileUploadInput: $fileUploadInput) {
+    uploadUrl
+    publicId
+    signature
+    timestamp
+    apiKey
+    cloudName
+    folder
+  }
+}
+```
+
+**Variables:**
+
+```json
+{
+  "fileUploadInput": {
+    "fileName": "profile-image.jpg",
+    "type": "image/jpeg",
+    "folder": "avatars"
+  }
+}
+```
+
+#### 2. Confirm Upload (After uploading to Cloudinary)
+
+```graphql
+mutation ConfirmUpload($url: String!, $publicId: String!, $type: String) {
+  confirmUpload(url: $url, publicId: $publicId, type: $type) {
+    id
+    url
+    publicId
+    type
+    createdAt
+  }
+}
+```
+
+### File Upload Flow
+
+1. **Frontend requests upload URL:**
+
+   ```typescript
+   const { data } = await client.mutate({
+     mutation: GENERATE_UPLOAD_URL,
+     variables: {
+       fileUploadInput: {
+         fileName: 'profile.jpg',
+         type: 'image/jpeg',
+         folder: 'avatars',
+       },
+     },
+   });
+   ```
+
+2. **Upload directly to Cloudinary:**
+
+   ```typescript
+   const formData = new FormData();
+   formData.append('file', file);
+   formData.append('api_key', data.generateUploadUrl.apiKey);
+   formData.append('timestamp', data.generateUploadUrl.timestamp);
+   formData.append('signature', data.generateUploadUrl.signature);
+   formData.append('folder', data.generateUploadUrl.folder);
+
+   const response = await fetch(data.generateUploadUrl.uploadUrl, {
+     method: 'POST',
+     body: formData,
+   });
+   ```
+
+3. **Confirm upload in database:**
+   ```typescript
+   await client.mutate({
+     mutation: CONFIRM_UPLOAD,
+     variables: {
+       url: cloudinaryResponse.secure_url,
+       publicId: cloudinaryResponse.public_id,
+       type: 'image',
+     },
+   });
+   ```
+
+### Supported File Types
+
+- **Images:** JPG, JPEG, PNG, GIF, WebP, SVG, BMP
+- **Videos:** MP4, MOV, AVI, MKV, WebM
+- **Documents:** PDF, DOC, DOCX, and other files (stored as 'raw' type)
+
+### File Management Queries
+
+```graphql
+# Get all files
+query GetFiles {
+  files {
+    id
+    url
+    publicId
+    type
+    createdAt
+  }
+}
+
+# Get files by type
+query GetFilesByType($type: String!) {
+  filesByType(type: $type) {
+    id
+    url
+    publicId
+    type
+    createdAt
+  }
+}
+
+# Get file statistics
+query GetFileStats {
+  fileStats {
+    total
+    byType
+  }
+}
+```
+
+### Features
+
+- ✅ **Secure uploads** with signed URLs
+- ✅ **Direct upload** to Cloudinary (no server storage)
+- ✅ **Automatic optimization** and transformations
+- ✅ **File validation** and type checking
+- ✅ **Database tracking** of uploaded files
+- ✅ **Cleanup** when files are deleted
+- ✅ **Multiple file types** support (images, videos, documents)
 
 ## Scripts
 
@@ -114,6 +275,8 @@ The server will start on the port specified in your `.env` (default: 8089).
 - `src/modules/auth` — Authentication logic (Google, OTP)
 - `src/modules/user` — User management
 - `src/modules/sport` — Sport management
+- `src/modules/upload` — File upload with Cloudinary integration
+- `src/modules/stadium` — Stadium management
 - `src/config` — Environment and app configuration
 
 ## Useful Links

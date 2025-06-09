@@ -8,6 +8,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { CreateFileInput } from './dto/create-file.input';
+import { DirectUploadInput } from './dto/direct-upload.input';
 import { FileUploadInput } from './dto/file-upload.input';
 import { UpdateFileInput } from './dto/update-file.input';
 import { File } from './entities/file.entity';
@@ -21,6 +22,21 @@ export class UploadUrlResponse {
 
   @Field()
   publicId: string;
+
+  @Field()
+  signature: string;
+
+  @Field(() => Int)
+  timestamp: number;
+
+  @Field()
+  apiKey: string;
+
+  @Field()
+  cloudName: string;
+
+  @Field()
+  folder: string;
 
   @Field(() => String, { nullable: true })
   fields?: string; // JSON string of additional fields
@@ -64,6 +80,11 @@ export class UploadResolver {
     return {
       uploadUrl: result.uploadUrl,
       publicId: result.publicId,
+      signature: result.signature,
+      timestamp: result.timestamp,
+      apiKey: result.apiKey,
+      cloudName: result.cloudName,
+      folder: result.folder,
       fields: result.fields ? JSON.stringify(result.fields) : undefined,
     };
   }
@@ -114,5 +135,26 @@ export class UploadResolver {
   @Mutation(() => Boolean)
   removeFile(@Args('id', { type: () => Int }) id: number) {
     return this.uploadService.remove(id);
+  }
+
+  @Mutation(() => File)
+  async testUploadSampleImage(
+    @Args('folder', { nullable: true, defaultValue: 'test' }) folder?: string,
+  ) {
+    return this.uploadService.testUploadSampleImage(folder);
+  }
+
+  @Mutation(() => String)
+  async uploadImage(
+    @Args('uploadInput') uploadInput: DirectUploadInput,
+  ): Promise<string> {
+    return this.uploadService.uploadFileAndGetUrl(
+      uploadInput.fileData,
+      uploadInput.fileName,
+      {
+        type: uploadInput.type,
+        folder: uploadInput.folder,
+      },
+    );
   }
 }

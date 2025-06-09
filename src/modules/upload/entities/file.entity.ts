@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 @ObjectType()

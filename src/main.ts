@@ -1,6 +1,7 @@
 import { Logger as NestLogger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import * as express from 'express';
 // import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
 
 // import { middleware } from './app.middleware';
@@ -16,6 +17,10 @@ async function bootstrap(): Promise<string> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
+
+  // Increase body size limit for file uploads (10MB)
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // app.useLogger(app.get(Logger));
   // app.useGlobalInterceptors(new LoggerErrorInterceptor());

@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class UpdateStadiumBankInput {
@@ -21,14 +21,4 @@ export class UpdateStadiumBankInput {
   @IsOptional()
   @IsString()
   accountNumber?: string;
-
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  @IsArray()
-  otherPayments?: string[];
-
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  @IsArray()
-  pricingImages?: string[];
-} 
+}

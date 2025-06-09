@@ -102,15 +102,6 @@ export class Stadium {
   @Column({ nullable: true })
   accountNumber?: string;
 
-  @Field(() => [String], { nullable: true })
-  @Column('text', { array: true, nullable: true })
-  otherPayments?: string[];
-
-  // Pricing images
-  @Field(() => [String], { nullable: true })
-  @Column('text', { array: true, nullable: true })
-  pricingImages?: string[];
-
   // Image URLs
   @Field({ nullable: true })
   @Column({ nullable: true })

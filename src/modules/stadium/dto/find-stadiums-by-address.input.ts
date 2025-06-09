@@ -1,5 +1,5 @@
-import { InputType, Field, Float } from '@nestjs/graphql';
-import { IsString, IsOptional, IsNumber, Min, Max } from 'class-validator';
+import { Field, Float, InputType } from '@nestjs/graphql';
+import { IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 @InputType()
 export class FindStadiumsByAddressInput {
@@ -13,4 +13,4 @@ export class FindStadiumsByAddressInput {
   @Min(0.1)
   @Max(50)
   radiusKm?: number = 5;
-} 
+}

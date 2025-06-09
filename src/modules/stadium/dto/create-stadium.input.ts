@@ -1,5 +1,15 @@
-import { Field, InputType, Int, Float } from '@nestjs/graphql';
-import { IsNotEmpty, IsString, MaxLength, IsNumber, IsOptional, Min, Max, IsEmail, IsArray } from 'class-validator';
+import { Field, Float, InputType, Int } from '@nestjs/graphql';
+import {
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 @InputType()
 export class CreateStadiumInput {
@@ -97,4 +107,4 @@ export class CreateStadiumInput {
   @Field(() => Int)
   @IsNotEmpty()
   userId: number;
-} 
+}

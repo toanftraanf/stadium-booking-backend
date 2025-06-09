@@ -112,8 +112,6 @@ type Stadium {
   bank: String
   accountName: String
   accountNumber: String
-  otherPayments: [String!]
-  pricingImages: [String!]
   avatarUrl: String
   bannerUrl: String
   galleryUrls: [String!]
@@ -125,6 +123,11 @@ type Stadium {
 type UploadUrlResponse {
   uploadUrl: String!
   publicId: String!
+  signature: String!
+  timestamp: Int!
+  apiKey: String!
+  cloudName: String!
+  folder: String!
   fields: String
 }
 
@@ -145,11 +148,18 @@ type Query {
   stadiums: [Stadium!]!
   stadium(id: Int!): Stadium!
   stadiumsByUser(userId: Int!): [Stadium!]!
+  stadiumsByName(name: String!): [Stadium!]!
+  stadiumsByAddress(input: FindStadiumsByAddressInput!): [Stadium!]!
   files: [File!]!
   filesByType(type: String!): [File!]!
   file(id: Int!): File!
   fileByPublicId(publicId: String!): File!
   fileStats: FileStatsResponse!
+}
+
+input FindStadiumsByAddressInput {
+  address: String!
+  radiusKm: Float = 5
 }
 
 type Mutation {
@@ -169,6 +179,7 @@ type Mutation {
   logout(accessToken: String!, refreshToken: String): Boolean!
   logoutFromAllDevices(userId: Float!): Boolean!
   createStadium(createStadiumInput: CreateStadiumInput!): Stadium!
+  createStadiumWithSteps(createStadiumStepsInput: CreateStadiumStepsInput!): Stadium!
   updateStadium(updateStadiumInput: UpdateStadiumInput!): Stadium!
   updateStadiumBank(id: Int!, input: UpdateStadiumBankInput!): Stadium!
   updateStadiumImages(id: Int!, input: UpdateStadiumImagesInput!): Stadium!
@@ -179,6 +190,8 @@ type Mutation {
   confirmUpload(url: String!, publicId: String!, type: String): File!
   updateFile(updateFileInput: UpdateFileInput!): File!
   removeFile(id: Int!): Boolean!
+  testUploadSampleImage(folder: String = "test"): File!
+  uploadImage(uploadInput: DirectUploadInput!): String!
 }
 
 input CreateUserInput {
@@ -276,6 +289,37 @@ input CreateStadiumInput {
   userId: Int!
 }
 
+input CreateStadiumStepsInput {
+  stadiumId: Int
+  step1Data: Step1Data!
+  step2Data: Step2Data!
+  userId: Int!
+  avatarUrl: String
+  bannerUrl: String
+  galleryUrls: [String!]
+}
+
+input Step1Data {
+  description: String
+  email: String!
+  endTime: String!
+  googleMap: String!
+  name: String!
+  otherContacts: [String!]!
+  otherInfo: String
+  phone: String!
+  sports: [String!]!
+  startTime: String!
+  website: String
+}
+
+input Step2Data {
+  accountName: String!
+  accountNumber: String!
+  bank: String!
+  pricePerHalfHour: Float!
+}
+
 input UpdateStadiumInput {
   id: Int!
   name: String
@@ -296,8 +340,6 @@ input UpdateStadiumBankInput {
   bank: String
   accountName: String
   accountNumber: String
-  otherPayments: [String!]
-  pricingImages: [String!]
 }
 
 input UpdateStadiumImagesInput {
@@ -324,4 +366,11 @@ input UpdateFileInput {
   publicId: String
   type: String
   id: Int!
+}
+
+input DirectUploadInput {
+  fileName: String!
+  fileData: String!
+  folder: String
+  type: String
 }
