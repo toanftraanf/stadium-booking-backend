@@ -40,7 +40,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<any> {
     const email: string =
       Array.isArray(profile.emails) &&
-        typeof profile.emails[0]?.value === 'string'
+      typeof profile.emails[0]?.value === 'string'
         ? profile.emails[0].value
         : '';
     const googleId: string = typeof profile.id === 'string' ? profile.id : '';

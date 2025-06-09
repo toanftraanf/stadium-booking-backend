@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType, Int, Float } from '@nestjs/graphql';
 import {
   IsArray,
   IsEmail,
@@ -17,6 +17,21 @@ export class UpdateStadiumInput {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
 
   @Field({ nullable: true })
   @IsOptional()

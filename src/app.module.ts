@@ -11,6 +11,7 @@ import { SportModule } from './modules/sport/sport.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { StadiumModule } from './modules/stadium/stadium.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { ReservationModule } from './modules/reservation/reservation.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UploadModule } from './modules/upload/upload.module';
     AuthModule,
     StadiumModule,
     UploadModule,
+    ReservationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

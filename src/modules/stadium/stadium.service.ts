@@ -9,6 +9,7 @@ import { UpdateStadiumBankInput } from './dto/update-stadium-bank.input';
 import { UpdateStadiumImagesInput } from './dto/update-stadium-images.input';
 import { UpdateStadiumInput } from './dto/update-stadium.input';
 import { Stadium } from './entities/stadium.entity';
+import { FieldService } from './field.service';
 
 interface StadiumWithDistance extends Stadium {
   distance: {
@@ -25,12 +26,12 @@ export class StadiumService {
   constructor(
     @InjectRepository(Stadium)
     private readonly stadiumRepository: Repository<Stadium>,
+    private readonly fieldService: FieldService,
   ) {}
 
   async create(createStadiumInput: CreateStadiumInput): Promise<Stadium> {
     const stadium = this.stadiumRepository.create(createStadiumInput);
-    const savedStadium = await this.stadiumRepository.save(stadium);
-    return this.findOne(savedStadium.id);
+    return this.stadiumRepository.save(stadium);
   }
 
   async createWithSteps(
@@ -56,6 +57,9 @@ export class StadiumService {
       // From step1Data
       name: step1Data.name,
       description: step1Data.description || '',
+      address: step1Data.address || '',
+      latitude: step1Data.latitude,
+      longitude: step1Data.longitude,
       email: step1Data.email,
       endTime: step1Data.endTime,
       googleMap: step1Data.googleMap,
@@ -83,6 +87,12 @@ export class StadiumService {
 
     const stadium = this.stadiumRepository.create(stadiumData);
     const savedStadium = await this.stadiumRepository.save(stadium);
+
+    // Create fields if provided
+    if (step1Data.fields && step1Data.fields.length > 0) {
+      await this.fieldService.createMultiple(savedStadium.id, step1Data.fields);
+    }
+
     return this.findOne(savedStadium.id);
   }
 
@@ -97,6 +107,9 @@ export class StadiumService {
       // From step1Data
       name: step1Data.name,
       description: step1Data.description || '',
+      address: step1Data.address || '',
+      latitude: step1Data.latitude,
+      longitude: step1Data.longitude,
       email: step1Data.email,
       endTime: step1Data.endTime,
       googleMap: step1Data.googleMap,
@@ -118,12 +131,20 @@ export class StadiumService {
     };
 
     await this.stadiumRepository.update(stadiumId, updateData);
+
+    // Update fields if provided
+    if (step1Data.fields && step1Data.fields.length > 0) {
+      // Remove existing fields and create new ones
+      await this.fieldService.removeByStadiumId(stadiumId);
+      await this.fieldService.createMultiple(stadiumId, step1Data.fields);
+    }
+
     return this.findOne(stadiumId);
   }
 
   async findAll(): Promise<Stadium[]> {
     const stadiums = await this.stadiumRepository.find({
-      relations: ['user'],
+      relations: ['user', 'fields'],
       order: {
         createdAt: 'DESC',
       },
@@ -140,7 +161,7 @@ export class StadiumService {
   async findOne(id: number): Promise<Stadium> {
     const stadium = await this.stadiumRepository.findOne({
       where: { id },
-      relations: ['user'],
+      relations: ['user', 'fields'],
     });
     if (!stadium) {
       throw new NotFoundException(`Stadium with ID ${id} not found`);
@@ -151,7 +172,7 @@ export class StadiumService {
   async findByUserId(userId: number): Promise<Stadium[]> {
     return this.stadiumRepository.find({
       where: { userId },
-      relations: ['user'],
+      relations: ['user', 'fields'],
       order: {
         createdAt: 'DESC',
       },
@@ -287,36 +308,56 @@ export class StadiumService {
 
       // Check distance for each stadium
       for (const stadium of stadiumsToProcess) {
-        // Use address if available, otherwise use googleMap
-        const stadiumAddress =
-          stadium.address && stadium.address.trim()
-            ? stadium.address
-            : stadium.googleMap;
-
         try {
           console.log(
-            `Calculating distance for stadium ${stadium.id}: ${stadiumAddress}`,
+            `Calculating distance for stadium ${stadium.id}: ${
+              stadium.address || stadium.googleMap
+            }`,
           );
 
-          // Add delay to avoid rate limiting
-          await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay
+          let stadiumCoords: { lat: number; lng: number };
 
-          // First, geocode the stadium address to get coordinates
-          const stadiumGeocodeData = await this.geocodeWithRetry(
-            stadiumAddress!,
-            GOONG_API_KEY,
-          );
+          // Check if stadium already has coordinates stored
+          if (stadium.latitude && stadium.longitude) {
+            stadiumCoords = {
+              lat: stadium.latitude,
+              lng: stadium.longitude,
+            };
+            console.log(
+              `Using stored coordinates for stadium ${stadium.id}:`,
+              stadiumCoords,
+            );
+          } else {
+            // Use address if available, otherwise use googleMap
+            const stadiumAddress =
+              stadium.address && stadium.address.trim()
+                ? stadium.address
+                : stadium.googleMap;
 
-          if (
-            !stadiumGeocodeData.results ||
-            stadiumGeocodeData.results.length === 0
-          ) {
-            console.warn(`Cannot geocode stadium address: ${stadiumAddress}`);
-            continue;
+            console.log(
+              `Geocoding stadium ${stadium.id} address: ${stadiumAddress}`,
+            );
+
+            // Add delay to avoid rate limiting
+            await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay
+
+            // Geocode the stadium address to get coordinates
+            const stadiumGeocodeData = await this.geocodeWithRetry(
+              stadiumAddress!,
+              GOONG_API_KEY,
+            );
+
+            if (
+              !stadiumGeocodeData.results ||
+              stadiumGeocodeData.results.length === 0
+            ) {
+              console.warn(`Cannot geocode stadium address: ${stadiumAddress}`);
+              continue;
+            }
+
+            stadiumCoords = stadiumGeocodeData.results[0].geometry.location;
+            console.log(`Stadium ${stadium.id} coordinates:`, stadiumCoords);
           }
-
-          const stadiumCoords = stadiumGeocodeData.results[0].geometry.location;
-          console.log(`Stadium ${stadium.id} coordinates:`, stadiumCoords);
 
           // Try DistanceMatrix with coordinates
           try {
@@ -416,7 +457,7 @@ export class StadiumService {
                 message: error.message,
                 response: error.response?.data,
                 status: error.response?.status,
-                stadiumAddress: stadiumAddress,
+                stadiumAddress: stadium.address || stadium.googleMap,
               },
             );
           }
@@ -504,6 +545,173 @@ export class StadiumService {
         }
         throw error;
       }
+    }
+  }
+
+  private async extractAddressFromGoogleMapLink(
+    googleMapLink: string,
+  ): Promise<{ address: string; latitude?: number; longitude?: number }> {
+    try {
+      const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+      if (!GOOGLE_PLACES_API_KEY) {
+        console.warn(
+          'GOOGLE_PLACES_API_KEY is not configured, skipping address extraction',
+        );
+        return { address: '' };
+      }
+
+      // Extract place ID from Google Maps link
+      let placeId = '';
+
+      // Handle different Google Maps URL formats
+      const placeIdMatch = googleMapLink.match(/place_id[=:]([^&\s]+)/);
+      const dataMatch = googleMapLink.match(/data=.*!1s([^!]+)/);
+      const ftidMatch = googleMapLink.match(/ftid=([^&\s]+)/);
+
+      if (placeIdMatch) {
+        placeId = placeIdMatch[1];
+      } else if (dataMatch) {
+        placeId = dataMatch[1];
+      } else if (ftidMatch) {
+        placeId = ftidMatch[1];
+      } else {
+        // Try to extract coordinates and use reverse geocoding
+        const coordsMatch = googleMapLink.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+        if (coordsMatch) {
+          const lat = coordsMatch[1];
+          const lng = coordsMatch[2];
+          const address = await this.reverseGeocodeWithNewAPI(
+            lat,
+            lng,
+            GOOGLE_PLACES_API_KEY,
+          );
+          return {
+            address,
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lng),
+          };
+        }
+
+        console.warn(
+          'Could not extract place ID or coordinates from Google Maps link:',
+          googleMapLink,
+        );
+        return { address: '' };
+      }
+
+      // Use Google Places API (New) to get place details
+      const response = await axios.get(
+        `https://places.googleapis.com/v1/places/${placeId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
+            'X-Goog-FieldMask': 'displayName,formattedAddress,location',
+          },
+        },
+      );
+
+      if (response.data && response.data.formattedAddress) {
+        const address = response.data.formattedAddress;
+        const location = response.data.location;
+        console.log(
+          'Extracted address from Google Maps link using New Places API:',
+          address,
+        );
+        return {
+          address,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
+        };
+      } else {
+        console.warn('New Places API: No address found for place ID:', placeId);
+        return { address: '' };
+      }
+    } catch (error) {
+      console.error(
+        'Error extracting address from Google Maps link:',
+        error.response?.data || error.message,
+      );
+      return { address: '' };
+    }
+  }
+
+  private async reverseGeocodeWithNewAPI(
+    lat: string,
+    lng: string,
+    apiKey: string,
+  ): Promise<string> {
+    try {
+      // Use Places API (New) for reverse geocoding via Nearby Search
+      const response = await axios.post(
+        'https://places.googleapis.com/v1/places:searchNearby',
+        {
+          includedTypes: ['establishment'],
+          maxResultCount: 1,
+          locationRestriction: {
+            circle: {
+              center: {
+                latitude: parseFloat(lat),
+                longitude: parseFloat(lng),
+              },
+              radius: 50.0, // 50 meters radius
+            },
+          },
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': apiKey,
+            'X-Goog-FieldMask': 'places.displayName,places.formattedAddress',
+          },
+        },
+      );
+
+      if (response.data.places && response.data.places.length > 0) {
+        const address = response.data.places[0].formattedAddress;
+        console.log('Reverse geocoded address using New Places API:', address);
+        return address;
+      } else {
+        // Fallback to legacy Geocoding API if no places found
+        return await this.reverseGeocodeWithLegacyAPI(lat, lng, apiKey);
+      }
+    } catch (error) {
+      console.error(
+        'Error in reverse geocoding with New Places API:',
+        error.response?.data || error.message,
+      );
+      // Fallback to legacy Geocoding API
+      return await this.reverseGeocodeWithLegacyAPI(lat, lng, apiKey);
+    }
+  }
+
+  private async reverseGeocodeWithLegacyAPI(
+    lat: string,
+    lng: string,
+    apiKey: string,
+  ): Promise<string> {
+    try {
+      const response = await axios.get(
+        'https://maps.googleapis.com/maps/api/geocode/json',
+        {
+          params: {
+            latlng: `${lat},${lng}`,
+            key: apiKey,
+          },
+        },
+      );
+
+      if (response.data.status === 'OK' && response.data.results.length > 0) {
+        const address = response.data.results[0].formatted_address;
+        console.log('Reverse geocoded address using Legacy API:', address);
+        return address;
+      } else {
+        console.warn('Legacy reverse geocoding failed:', response.data.status);
+        return '';
+      }
+    } catch (error) {
+      console.error('Error in legacy reverse geocoding:', error.message);
+      return '';
     }
   }
 }

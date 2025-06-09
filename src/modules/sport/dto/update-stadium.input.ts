@@ -39,4 +39,4 @@ export class UpdateStadiumInput {
 
   @Field(() => [String])
   sports: string[];
-} 
+}

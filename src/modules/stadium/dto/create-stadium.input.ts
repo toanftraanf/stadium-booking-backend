@@ -30,6 +30,16 @@ export class CreateStadiumInput {
   @IsString()
   address: string;
 
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
+
   @Field()
   @IsNotEmpty()
   @IsString()
@@ -77,11 +87,6 @@ export class CreateStadiumInput {
   @IsNumber()
   @Min(0)
   price: number;
-
-  @Field(() => Float)
-  @IsNumber()
-  @Min(0)
-  area: number;
 
   @Field(() => Int)
   @IsNumber()

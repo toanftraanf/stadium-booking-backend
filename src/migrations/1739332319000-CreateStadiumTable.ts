@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateStadiumTable1739332319000 implements MigrationInterface {
-    name = 'CreateStadiumTable1739332319000'
+  name = 'CreateStadiumTable1739332319000';
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`CREATE TABLE "stadium" (
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`CREATE TABLE "stadium" (
             "id" SERIAL NOT NULL,
             "name" character varying NOT NULL,
             "description" character varying NOT NULL,
@@ -28,9 +28,9 @@ export class CreateStadiumTable1739332319000 implements MigrationInterface {
             "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
             CONSTRAINT "PK_stadium" PRIMARY KEY ("id")
         )`);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE "stadium"`);
-    }
-} 
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE "stadium"`);
+  }
+}

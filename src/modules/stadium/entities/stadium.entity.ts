@@ -5,10 +5,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { StadiumField } from './field.entity';
 
 @ObjectType()
 @Entity({ name: 'stadiums' })
@@ -17,11 +19,11 @@ export class Stadium {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ unique: true })
   name: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   description?: string;
 
@@ -29,19 +31,27 @@ export class Stadium {
   @Column({ nullable: true })
   address?: string;
 
-  @Field()
+  @Field(() => Float, { nullable: true })
+  @Column('decimal', { precision: 10, scale: 8, nullable: true })
+  latitude?: number;
+
+  @Field(() => Float, { nullable: true })
+  @Column('decimal', { precision: 11, scale: 8, nullable: true })
+  longitude?: number;
+
+  @Field({ nullable: true })
   @Column({ nullable: true })
   googleMap?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   phone?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   email?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   website?: string;
 
@@ -49,15 +59,15 @@ export class Stadium {
   @Column('text', { array: true, nullable: true })
   otherContacts?: string[];
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   startTime?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   endTime?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   otherInfo?: string;
 
@@ -65,23 +75,19 @@ export class Stadium {
   @Column('text', { array: true, nullable: true })
   sports?: string[];
 
-  @Field(() => Float)
+  @Field(() => Float, { nullable: true })
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   price?: number;
 
-  @Field(() => Float)
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
-  area?: number;
-
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   @Column({ nullable: true })
   numberOfFields?: number;
 
-  @Field(() => Float)
+  @Field(() => Float, { nullable: true })
   @Column('decimal', { precision: 3, scale: 2, default: 0 })
   rating?: number;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ default: 'active' })
   status?: string;
 
@@ -123,6 +129,10 @@ export class Stadium {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'userId' })
   user: User;
+
+  @Field(() => [StadiumField], { nullable: true })
+  @OneToMany(() => StadiumField, (field) => field.stadium)
+  fields?: StadiumField[];
 
   @Field()
   @CreateDateColumn()

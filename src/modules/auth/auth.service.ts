@@ -88,10 +88,10 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('Số điện thoại không tồn tại');
     }
-    // const isOTPValid = await this.otpService.verifyOTP(phoneNumber, otpCode);
-    // if (!isOTPValid) {
-    //   throw new UnauthorizedException('Mã OTP không hợp lệ');
-    // }
+    const isOTPValid = await this.otpService.verifyOTP(phoneNumber, otpCode);
+    if (!isOTPValid) {
+      throw new UnauthorizedException('Mã OTP không hợp lệ');
+    }
 
     const tokens = this.generateTokens(user);
     return {

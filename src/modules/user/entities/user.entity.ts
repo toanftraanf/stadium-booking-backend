@@ -56,7 +56,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ unique: true })
   phoneNumber: string;
 

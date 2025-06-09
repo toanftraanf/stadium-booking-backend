@@ -10,4 +10,4 @@ export class UpdateStadiumImagesInput {
 
   @Field(() => [String], { nullable: true })
   galleryUrls?: string[];
-} 
+}

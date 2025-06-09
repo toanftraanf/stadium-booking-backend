@@ -17,7 +17,7 @@ scalar DateTime
 
 type User {
   id: Int!
-  phoneNumber: String!
+  phoneNumber: String
   isVerified: Boolean!
   email: String
   status: UserStatus!
@@ -91,23 +91,24 @@ type AuthResponse {
 
 type Stadium {
   id: ID!
-  name: String!
-  description: String!
+  name: String
+  description: String
   address: String
-  googleMap: String!
-  phone: String!
-  email: String!
-  website: String!
+  latitude: Float
+  longitude: Float
+  googleMap: String
+  phone: String
+  email: String
+  website: String
   otherContacts: [String!]
-  startTime: String!
-  endTime: String!
-  otherInfo: String!
+  startTime: String
+  endTime: String
+  otherInfo: String
   sports: [String!]
-  price: Float!
-  area: Float!
-  numberOfFields: Int!
-  rating: Float!
-  status: String!
+  price: Float
+  numberOfFields: Int
+  rating: Float
+  status: String
   images: [String!]
   bank: String
   accountName: String
@@ -117,6 +118,15 @@ type Stadium {
   galleryUrls: [String!]
   userId: Int!
   user: User
+  fields: [StadiumField!]
+  createdAt: DateTime!
+}
+
+type StadiumField {
+  id: ID!
+  fieldName: String!
+  stadiumId: Int!
+  stadium: Stadium!
   createdAt: DateTime!
 }
 
@@ -136,6 +146,23 @@ type FileStatsResponse {
   byType: String!
 }
 
+type Reservation {
+  id: ID!
+  userId: Int!
+  stadiumId: Int!
+  sport: String!
+  courtType: String!
+  courtNumber: Int!
+  date: String!
+  startTime: String!
+  endTime: String!
+  totalPrice: Int!
+  status: String!
+  user: User!
+  stadium: Stadium!
+  createdAt: DateTime!
+}
+
 type Query {
   users: [User!]!
   user(id: Int!): User!
@@ -150,11 +177,21 @@ type Query {
   stadiumsByUser(userId: Int!): [Stadium!]!
   stadiumsByName(name: String!): [Stadium!]!
   stadiumsByAddress(input: FindStadiumsByAddressInput!): [Stadium!]!
+  fields: [StadiumField!]!
+  field(id: Int!): StadiumField!
+  fieldsByStadium(stadiumId: Int!): [StadiumField!]!
   files: [File!]!
   filesByType(type: String!): [File!]!
   file(id: Int!): File!
   fileByPublicId(publicId: String!): File!
   fileStats: FileStatsResponse!
+  reservations: [Reservation!]!
+  reservation(id: Int!): Reservation!
+  reservationsByUser(userId: Int!): [Reservation!]!
+  userReservations(userId: Int!): [Reservation!]!
+  reservationsByStadium(stadiumId: Int!): [Reservation!]!
+  stadiumReservations(stadiumId: Int!, date: String!): [Reservation!]!
+  ownerStadiumReservationsByDateRange(ownerId: Int!, startDate: String!, endDate: String!): [Reservation!]!
 }
 
 input FindStadiumsByAddressInput {
@@ -184,6 +221,9 @@ type Mutation {
   updateStadiumBank(id: Int!, input: UpdateStadiumBankInput!): Stadium!
   updateStadiumImages(id: Int!, input: UpdateStadiumImagesInput!): Stadium!
   removeStadium(id: Int!): Stadium!
+  createField(createFieldInput: CreateFieldInput!): StadiumField!
+  updateField(updateFieldInput: UpdateFieldInput!): StadiumField!
+  removeField(id: Int!): StadiumField!
   seedDefaultAvatar: Boolean!
   createFile(createFileInput: CreateFileInput!): File!
   generateUploadUrl(fileUploadInput: FileUploadInput!): UploadUrlResponse!
@@ -192,6 +232,10 @@ type Mutation {
   removeFile(id: Int!): Boolean!
   testUploadSampleImage(folder: String = "test"): File!
   uploadImage(uploadInput: DirectUploadInput!): String!
+  createReservation(createReservationInput: CreateReservationInput!): Reservation!
+  updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
+  updateReservationStatus(id: Int!, status: String!): Reservation!
+  removeReservation(id: Int!): Reservation!
 }
 
 input CreateUserInput {
@@ -271,6 +315,8 @@ input CreateStadiumInput {
   name: String!
   description: String!
   address: String!
+  latitude: Float
+  longitude: Float
   googleMap: String!
   phone: String!
   email: String!
@@ -281,7 +327,6 @@ input CreateStadiumInput {
   otherInfo: String!
   sports: [String!]!
   price: Float!
-  area: Float!
   numberOfFields: Int!
   rating: Float
   status: String
@@ -300,15 +345,19 @@ input CreateStadiumStepsInput {
 }
 
 input Step1Data {
-  description: String
+  description: String!
+  address: String
   email: String!
   endTime: String!
-  googleMap: String!
+  googleMap: String
+  latitude: Float
+  longitude: Float
   name: String!
   otherContacts: [String!]!
   otherInfo: String
   phone: String!
   sports: [String!]!
+  fields: [String!]!
   startTime: String!
   website: String
 }
@@ -323,6 +372,9 @@ input Step2Data {
 input UpdateStadiumInput {
   id: Int!
   name: String
+  address: String
+  latitude: Float
+  longitude: Float
   googleMap: String
   phone: String
   email: String
@@ -349,6 +401,17 @@ input UpdateStadiumImagesInput {
   galleryUrls: [String!]
 }
 
+input CreateFieldInput {
+  fieldName: String!
+  stadiumId: Int!
+}
+
+input UpdateFieldInput {
+  fieldName: String
+  stadiumId: Int
+  id: Int!
+}
+
 input CreateFileInput {
   url: String!
   publicId: String
@@ -373,4 +436,31 @@ input DirectUploadInput {
   fileData: String!
   folder: String
   type: String
+}
+
+input CreateReservationInput {
+  userId: Int!
+  stadiumId: Int!
+  sport: String!
+  courtType: String!
+  courtNumber: Int!
+  date: String!
+  startTime: String!
+  endTime: String!
+  totalPrice: Float!
+  status: String
+}
+
+input UpdateReservationInput {
+  userId: Int
+  stadiumId: Int
+  sport: String
+  courtType: String
+  courtNumber: Int
+  date: String
+  startTime: String
+  endTime: String
+  totalPrice: Float
+  status: String
+  id: Int!
 }

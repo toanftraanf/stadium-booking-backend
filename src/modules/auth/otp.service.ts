@@ -94,11 +94,11 @@ export class OtpService {
       const validatedPhoneNumber = await this.validatePhoneNumber(phoneNumber);
 
       // In development, just log the OTP instead of sending SMS
-      if (this.configService.get('NODE_ENV') === 'development') {
-        console.log('Development mode - OTP:', otp);
-        console.log('Would send to:', validatedPhoneNumber);
-        return encryptedOTP;
-      }
+      // if (this.configService.get('NODE_ENV') === 'development') {
+      //   console.log('Development mode - OTP:', otp);
+      //   console.log('Would send to:', validatedPhoneNumber);
+      //   return encryptedOTP;
+      // }
 
       console.log('Attempting to send OTP to:', validatedPhoneNumber);
       console.log(
