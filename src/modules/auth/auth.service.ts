@@ -7,6 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { OAuth2Client } from 'google-auth-library';
+import axios from 'axios';
 import { OTP_EXPIRATION_TIME } from 'src/common/constants';
 import { User, UserRole, UserStatus } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
@@ -233,14 +234,22 @@ export class AuthService {
 
   /**
    * Get Google OAuth URL
+   * @param redirectUri - Optional redirect URI, defaults to env var
    * @returns The Google OAuth URL
    */
-  getGoogleAuthUrl(): string {
+  getGoogleAuthUrl(redirectUri?: string): string {
     const clientID = this.configService.get<string>('GOOGLE_CLIENT_ID');
-    const callbackURL = this.configService.get<string>('GOOGLE_CALLBACK_URL');
+    const callbackURL = redirectUri || this.configService.get<string>('GOOGLE_CALLBACK_URL');
 
-    if (!clientID || !callbackURL) {
-      throw new Error('Missing Google OAuth configuration');
+    // Log để debug
+    console.log('Google Client ID:', clientID);
+    console.log('Google Callback URL:', callbackURL);
+
+    if (!clientID) {
+      throw new Error('Missing GOOGLE_CLIENT_ID in environment variables');
+    }
+    if (!callbackURL) {
+      throw new Error('Missing GOOGLE_CALLBACK_URL in environment variables');
     }
 
     const scopes = ['email', 'profile'];
@@ -277,5 +286,85 @@ export class AuthService {
       verifyCode: otpCode,
       verifyCodeExpiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME),
     });
+  }
+
+  /**
+   * Handle Google OAuth callback (web flow)
+   * @param code - Authorization code from Google
+   * @returns User with tokens
+   */
+  async handleGoogleCallback(code: string): Promise<AuthResponse> {
+    const clientID = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
+    const redirectUri = this.configService.get<string>('GOOGLE_CALLBACK_URL');
+
+    console.log('🔐 Google Callback Debug:');
+    console.log('Code received:', code);
+    console.log('Client ID:', clientID);
+    console.log('Redirect URI:', redirectUri);
+    console.log('Code length:', code.length);
+
+    if (!clientID || !clientSecret || !redirectUri) {
+      throw new Error('Missing Google OAuth configuration');
+    }
+
+    try {
+      console.log('📡 Exchanging code for tokens...');
+      // 1. Exchange authorization code for access token
+      const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', null, {
+        params: {
+          code,
+          client_id: clientID,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+
+      console.log('✅ Token exchange successful:', tokenResponse.status);
+
+      const { access_token } = tokenResponse.data;
+      console.log('Access token received:', !!access_token);
+
+      // 2. Get user info from Google
+      console.log('👤 Getting user info from Google...');
+      const userResponse = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+
+      const googleUserData = userResponse.data;
+      console.log('👤 Google user data:', googleUserData);
+
+      // 3. Create GoogleUser object
+      const googleUser: GoogleUser = {
+        email: googleUserData.email,
+        googleId: googleUserData.id,
+      };
+
+      // 4. Validate or create user in our system
+      const user = await this.validateGoogleUser(googleUser);
+
+      // 5. Generate tokens for our system
+      const tokens = this.generateTokens(user);
+
+      return {
+        user,
+        ...tokens,
+      };
+    } catch (error) {
+      console.error('🚨 Google OAuth callback error:', error);
+      
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      }
+      
+      if (error.request) {
+        console.error('Request details:', error.request);
+      }
+      
+      throw new UnauthorizedException('Failed to authenticate with Google');
+    }
   }
 }

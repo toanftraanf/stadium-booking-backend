@@ -42,6 +42,11 @@ export class AuthResolver {
     return this.authService.validateGoogleMobileToken(idToken);
   }
 
+  @Mutation(() => AuthResponse)
+  async handleGoogleCallback(@Args('code') code: string) {
+    return this.authService.handleGoogleCallback(code);
+  }
+
   @Mutation(() => User)
   async registerOwner(
     @Args('phoneNumber') phoneNumber: string,
@@ -64,8 +69,8 @@ export class AuthResolver {
   }
 
   @Query(() => String)
-  googleAuthUrl(): string {
-    return this.authService.getGoogleAuthUrl();
+  googleAuthUrl(@Args('redirectUri', { nullable: true }) redirectUri?: string): string {
+    return this.authService.getGoogleAuthUrl(redirectUri);
   }
 
   @Query(() => User)

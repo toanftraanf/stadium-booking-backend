@@ -140,7 +140,7 @@ type Query {
   sport(id: Int!): Sport!
   sportWithUserCount(id: Int!): Sport!
   userFavoriteSports(userId: Int!): [Sport!]!
-  googleAuthUrl: String!
+  googleAuthUrl(redirectUri: String): String!
   googleAuth: User!
   stadiums: [Stadium!]!
   stadium(id: Int!): Stadium!
@@ -172,6 +172,7 @@ type Mutation {
   authenticate(phoneNumber: String!, otp: String!): AuthResponse!
   resetOTP(phoneNumber: String!): Boolean!
   googleAuthMobile(idToken: String!): AuthResponse!
+  handleGoogleCallback(code: String!): AuthResponse!
   registerOwner(phoneNumber: String!, fullName: String!): User!
   logout(accessToken: String!, refreshToken: String): Boolean!
   logoutFromAllDevices(userId: Float!): Boolean!
