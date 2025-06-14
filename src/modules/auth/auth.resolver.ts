@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from '../user/entities/user.entity';
+import { User, UserRole } from '../user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { OtpService } from './otp.service';
 
@@ -15,8 +15,11 @@ export class AuthResolver {
   ) {}
 
   @Mutation(() => User)
-  async checkExistingUser(@Args('phoneNumber') phoneNumber: string) {
-    return this.authService.checkExistingUser(phoneNumber);
+  async checkExistingUser(
+    @Args('phoneNumber') phoneNumber: string,
+    @Args('userRole') userRole: UserRole,
+  ) {
+    return this.authService.checkExistingUser(phoneNumber, userRole);
   }
 
   @Mutation(() => AuthResponse, { name: 'authenticate' })
@@ -48,6 +51,14 @@ export class AuthResolver {
     @Args('fullName') fullName: string,
   ) {
     return this.authService.registerOwner(phoneNumber, fullName);
+  }
+
+  @Mutation(() => User)
+  async registerCustomer(
+    @Args('phoneNumber') phoneNumber: string,
+    @Args('fullName') fullName: string,
+  ) {
+    return this.authService.registerCustomer(phoneNumber, fullName);
   }
 
   @Mutation(() => Boolean)

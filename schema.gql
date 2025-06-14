@@ -208,11 +208,12 @@ type Mutation {
   removeSport(id: Int!): Sport!
   addFavoriteSport(addFavoriteSportInput: AddFavoriteSportInput!): UserFavoriteSport!
   removeFavoriteSport(userId: Int!, sportId: Int!): Boolean!
-  checkExistingUser(phoneNumber: String!): User!
+  checkExistingUser(phoneNumber: String!, userRole: String!): User!
   authenticate(phoneNumber: String!, otp: String!): AuthResponse!
   resetOTP(phoneNumber: String!): Boolean!
   googleAuthMobile(idToken: String!): AuthResponse!
   registerOwner(phoneNumber: String!, fullName: String!): User!
+  registerCustomer(phoneNumber: String!, fullName: String!): User!
   logout(accessToken: String!, refreshToken: String): Boolean!
   logoutFromAllDevices(userId: Float!): Boolean!
   createStadium(createStadiumInput: CreateStadiumInput!): Stadium!
