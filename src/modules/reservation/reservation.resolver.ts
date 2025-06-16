@@ -1,19 +1,87 @@
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { GraphQLError } from 'graphql';
+import { NotFoundException } from '@nestjs/common';
 import { CreateReservationInput } from './dto/create-reservation.input';
 import { UpdateReservationInput } from './dto/update-reservation.input';
 import { Reservation } from './entities/reservation.entity';
 import { ReservationService } from './reservation.service';
+import { BookingErrorCode } from './enums/booking-error-code.enum';
+import { BookingConflictException } from './exceptions/booking-conflict.exception';
+import { StadiumNotFoundException } from './exceptions/stadium-not-found.exception';
+import { InvalidTimeSlotException } from './exceptions/invalid-time-slot.exception';
 
 @Resolver(() => Reservation)
 export class ReservationResolver {
   constructor(private readonly reservationService: ReservationService) {}
 
+  private handleError(error: any): never {
+    if (error instanceof BookingConflictException) {
+      throw new GraphQLError('The selected time slot is already booked', {
+        extensions: { code: BookingErrorCode.BOOKING_CONFLICT },
+      });
+    }
+
+    if (error instanceof StadiumNotFoundException) {
+      throw new GraphQLError('Stadium not found', {
+        extensions: { code: BookingErrorCode.STADIUM_NOT_FOUND },
+      });
+    }
+
+    if (error instanceof InvalidTimeSlotException) {
+      throw new GraphQLError('Invalid time slot provided', {
+        extensions: { code: BookingErrorCode.INVALID_TIME_SLOT },
+      });
+    }
+
+    if (error instanceof NotFoundException) {
+      throw new GraphQLError(error.message, {
+        extensions: { code: 'NOT_FOUND' },
+      });
+    }
+
+    // Handle string-based error checking for backward compatibility
+    if (error.message) {
+      if (error.message.includes('BOOKING_CONFLICT')) {
+        throw new GraphQLError('The selected time slot is already booked', {
+          extensions: { code: BookingErrorCode.BOOKING_CONFLICT },
+        });
+      }
+
+      if (error.message.includes('STADIUM_NOT_FOUND')) {
+        throw new GraphQLError('Stadium not found', {
+          extensions: { code: BookingErrorCode.STADIUM_NOT_FOUND },
+        });
+      }
+
+      if (error.message.includes('INVALID_TIME_SLOT')) {
+        throw new GraphQLError('Invalid time slot provided', {
+          extensions: { code: BookingErrorCode.INVALID_TIME_SLOT },
+        });
+      }
+    }
+
+    // Re-throw other errors as GraphQL errors
+    throw new GraphQLError(error.message || 'An unexpected error occurred', {
+      extensions: {
+        code: 'INTERNAL_ERROR',
+        originalError: error.name || 'Unknown',
+      },
+    });
+  }
+
   @Mutation(() => Reservation)
-  createReservation(
+  async createReservation(
     @Args('createReservationInput')
     createReservationInput: CreateReservationInput,
   ) {
-    return this.reservationService.create(createReservationInput);
+    try {
+      const reservation = await this.reservationService.create(
+        createReservationInput,
+      );
+      return reservation;
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
   @Query(() => [Reservation], { name: 'reservations' })
@@ -63,26 +131,38 @@ export class ReservationResolver {
   }
 
   @Mutation(() => Reservation)
-  updateReservation(
+  async updateReservation(
     @Args('updateReservationInput')
     updateReservationInput: UpdateReservationInput,
   ) {
-    return this.reservationService.update(
-      updateReservationInput.id,
-      updateReservationInput,
-    );
+    try {
+      return await this.reservationService.update(
+        updateReservationInput.id,
+        updateReservationInput,
+      );
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
   @Mutation(() => Reservation)
-  updateReservationStatus(
+  async updateReservationStatus(
     @Args('id', { type: () => Int }) id: number,
     @Args('status') status: string,
   ) {
-    return this.reservationService.updateStatus(id, status);
+    try {
+      return await this.reservationService.updateStatus(id, status);
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
   @Mutation(() => Reservation)
-  removeReservation(@Args('id', { type: () => Int }) id: number) {
-    return this.reservationService.remove(id);
+  async removeReservation(@Args('id', { type: () => Int }) id: number) {
+    try {
+      return await this.reservationService.remove(id);
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 }

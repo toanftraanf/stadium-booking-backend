@@ -163,6 +163,33 @@ type Reservation {
   createdAt: DateTime!
 }
 
+type Review {
+  id: ID!
+  reservationId: Int!
+  stadiumId: Int!
+  userId: Int!
+  rating: Int!
+  comment: String!
+  reservation: Reservation!
+  stadium: Stadium!
+  user: User!
+  createdAt: DateTime!
+}
+
+type RatingBreakdown {
+  star1: Int!
+  star2: Int!
+  star3: Int!
+  star4: Int!
+  star5: Int!
+}
+
+type ReviewStats {
+  averageRating: Float!
+  totalReviews: Int!
+  ratingBreakdown: RatingBreakdown!
+}
+
 type Query {
   users: [User!]!
   user(id: Int!): User!
@@ -192,6 +219,11 @@ type Query {
   reservationsByStadium(stadiumId: Int!): [Reservation!]!
   stadiumReservations(stadiumId: Int!, date: String!): [Reservation!]!
   ownerStadiumReservationsByDateRange(ownerId: Int!, startDate: String!, endDate: String!): [Reservation!]!
+  stadiumReviews(stadiumId: Int!): [Review!]!
+  reviewStats(stadiumId: Int!): ReviewStats!
+  userReviews(userId: Int!): [Review!]!
+  review(id: Int!): Review!
+  stadiumAverageRating(stadiumId: Int!): Float!
 }
 
 input FindStadiumsByAddressInput {
@@ -237,6 +269,8 @@ type Mutation {
   updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
   updateReservationStatus(id: Int!, status: String!): Reservation!
   removeReservation(id: Int!): Reservation!
+  createReview(createReviewInput: CreateReviewInput!): Review!
+  recalculateAllStadiumRatings: Boolean!
 }
 
 input CreateUserInput {
@@ -464,4 +498,12 @@ input UpdateReservationInput {
   totalPrice: Float
   status: String
   id: Int!
+}
+
+input CreateReviewInput {
+  reservationId: Int!
+  stadiumId: Int!
+  userId: Int!
+  rating: Int!
+  comment: String!
 }

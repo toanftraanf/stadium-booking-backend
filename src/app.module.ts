@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { StadiumModule } from './modules/stadium/stadium.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ReservationModule } from './modules/reservation/reservation.module';
     StadiumModule,
     UploadModule,
     ReservationModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],
