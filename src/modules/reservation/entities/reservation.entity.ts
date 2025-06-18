@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -12,7 +13,17 @@ import { Stadium } from '../../stadium/entities/stadium.entity';
 import { User } from '../../user/entities/user.entity';
 
 @ObjectType()
-@Entity({ name: 'reservations' })
+@Entity({
+  name: 'reservations',
+})
+@Index(
+  'unique_reservation_slot',
+  ['stadiumId', 'courtNumber', 'date', 'startTime', 'endTime'],
+  {
+    unique: true,
+    where: "status != 'CANCELLED'",
+  },
+)
 export class Reservation {
   @Field(() => ID)
   @PrimaryGeneratedColumn()

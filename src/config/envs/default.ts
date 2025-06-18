@@ -5,7 +5,7 @@ export const config = {
     // migrations: [`${__dirname}/../../migration/**/*.{js,ts}`],
   },
   graphql: {
-    debug: true,
+    debug: false,
     graphiql: true,
     autoSchemaFile: 'schema.gql',
     playground: {

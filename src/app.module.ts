@@ -13,6 +13,7 @@ import { StadiumModule } from './modules/stadium/stadium.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
 import { FriendshipModule } from './modules/frientship/friendship.module';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { FriendshipModule } from './modules/frientship/friendship.module';
     StadiumModule,
     UploadModule,
     ReservationModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],
