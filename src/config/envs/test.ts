@@ -8,7 +8,7 @@ export const config = {
     port: process.env.DB_PORT || 5432,
     username: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || '123',
-    database: process.env.DB_NAME || 'sbs_dev',
+    database: process.env.DB_NAME || 'stadium_booking',
     extra: {
       connectionLimit: 5,
     },
