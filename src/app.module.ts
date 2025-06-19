@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { StadiumModule } from './modules/stadium/stadium.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
+import { FriendshipModule } from './modules/frientship/friendship.module';
 import { ReviewModule } from './modules/review/review.module';
 
 @Module({
@@ -40,6 +41,7 @@ import { ReviewModule } from './modules/review/review.module';
       inject: [ConfigService],
     }),
     UserModule,
+    FriendshipModule,
     SportModule,
     AuthModule,
     StadiumModule,

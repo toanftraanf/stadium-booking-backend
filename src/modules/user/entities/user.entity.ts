@@ -11,6 +11,11 @@ import {
 } from 'typeorm';
 import { UserFavoriteSport } from '../../sport/entities/user-favorite-sport.entity';
 import { File } from '../../upload/entities/file.entity';
+import {
+  FriendRequest,
+  FriendRequestStatus,
+} from '../../frientship/entities/friend-request.entity';
+import { Friendship } from '../../frientship/entities/friendship.entity';
 
 export enum UserStatus {
   PENDING = 'pending',
@@ -48,7 +53,9 @@ registerEnumType(UserRole, { name: 'UserRole' });
 registerEnumType(UserSex, { name: 'UserSex' });
 registerEnumType(UserType, { name: 'UserType' });
 registerEnumType(UserLevel, { name: 'UserLevel' });
-
+registerEnumType(FriendRequestStatus, {
+  name: 'FriendRequestStatus',
+});
 @ObjectType()
 @Entity({ name: 'users' })
 export class User {
@@ -132,4 +139,15 @@ export class User {
   @Field()
   @UpdateDateColumn()
   updatedAt: Date;
+  @OneToMany(() => FriendRequest, (fr) => fr.requester)
+  sentFriendRequests: FriendRequest[];
+
+  @OneToMany(() => FriendRequest, (fr) => fr.recipient)
+  receivedFriendRequests: FriendRequest[];
+
+  @OneToMany(() => Friendship, (f) => f.userOne)
+  friendshipsInitiated: Friendship[];
+
+  @OneToMany(() => Friendship, (f) => f.userTwo)
+  friendshipsReceived: Friendship[];
 }
