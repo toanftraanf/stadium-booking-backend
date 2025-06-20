@@ -117,6 +117,14 @@ export class User {
   @Column({ nullable: true })
   address?: string;
 
+  @Field(() => Number, { nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  latitude?: number;
+
+  @Field(() => Number, { nullable: true })
+  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  longitude?: number;
+
   @Field(() => UserType, { nullable: true })
   @Column({ type: 'enum', enum: UserType, nullable: true })
   userType?: UserType;

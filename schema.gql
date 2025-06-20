@@ -43,6 +43,8 @@ type User {
   dob: DateTime
   sex: UserSex
   address: String
+  latitude: Float
+  longitude: Float
   userType: UserType
   level: UserLevel
   favoriteSports: [UserFavoriteSport!]!
@@ -308,6 +310,8 @@ input CreateUserInput {
   dob: DateTime
   sex: UserSex
   address: String
+  latitude: Float
+  longitude: Float
   level: UserLevel
 }
 
@@ -328,6 +332,8 @@ input UpdateUserInput {
   dob: DateTime
   sex: UserSex
   address: String
+  latitude: Float
+  longitude: Float
   level: UserLevel
 }
 
