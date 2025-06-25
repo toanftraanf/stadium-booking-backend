@@ -9,6 +9,7 @@ import { AuthResolver } from './auth.resolver';
 import { AuthService } from './auth.service';
 import { OtpService } from './otp.service';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -24,7 +25,13 @@ import { GoogleStrategy } from './strategies/google.strategy';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthResolver, AuthService, OtpService, GoogleStrategy],
+  providers: [
+    AuthResolver,
+    AuthService,
+    OtpService,
+    GoogleStrategy,
+    JwtStrategy,
+  ],
   exports: [AuthService, OtpService],
 })
 export class AuthModule {}

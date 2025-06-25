@@ -6,16 +6,13 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserFavoriteSport } from '../../sport/entities/user-favorite-sport.entity';
 import { File } from '../../upload/entities/file.entity';
-import {
-  FriendRequest,
-  FriendRequestStatus,
-} from '../../frientship/entities/friend-request.entity';
-import { Friendship } from '../../frientship/entities/friendship.entity';
+import { CoachProfile } from './coach-profile.entity';
 
 export enum UserStatus {
   PENDING = 'pending',
@@ -53,9 +50,6 @@ registerEnumType(UserRole, { name: 'UserRole' });
 registerEnumType(UserSex, { name: 'UserSex' });
 registerEnumType(UserType, { name: 'UserType' });
 registerEnumType(UserLevel, { name: 'UserLevel' });
-registerEnumType(FriendRequestStatus, {
-  name: 'FriendRequestStatus',
-});
 @ObjectType()
 @Entity({ name: 'users' })
 export class User {
@@ -133,12 +127,20 @@ export class User {
   @Column({ type: 'enum', enum: UserLevel, nullable: true })
   level?: UserLevel;
 
-  @Field(() => [UserFavoriteSport])
+  @Field(() => Number, { nullable: true })
+  @Column('decimal', { precision: 3, scale: 2, default: 0 })
+  rating?: number;
+
+  @Field(() => CoachProfile, { nullable: true })
+  @OneToOne(() => CoachProfile, (coachProfile) => coachProfile.user)
+  coachProfile?: CoachProfile;
+
+  @Field(() => [UserFavoriteSport], { nullable: true })
   @OneToMany(
     () => UserFavoriteSport,
     (userFavoriteSport) => userFavoriteSport.user,
   )
-  favoriteSports: UserFavoriteSport[];
+  favoriteSports?: UserFavoriteSport[];
 
   @Field()
   @CreateDateColumn()
@@ -147,15 +149,15 @@ export class User {
   @Field()
   @UpdateDateColumn()
   updatedAt: Date;
-  @OneToMany(() => FriendRequest, (fr) => fr.requester)
-  sentFriendRequests: FriendRequest[];
+  @OneToMany('FriendRequest', 'requester')
+  sentFriendRequests: any[];
 
-  @OneToMany(() => FriendRequest, (fr) => fr.recipient)
-  receivedFriendRequests: FriendRequest[];
+  @OneToMany('FriendRequest', 'recipient')
+  receivedFriendRequests: any[];
 
-  @OneToMany(() => Friendship, (f) => f.userOne)
-  friendshipsInitiated: Friendship[];
+  @OneToMany('Friendship', 'userOne')
+  friendshipsInitiated: any[];
 
-  @OneToMany(() => Friendship, (f) => f.userTwo)
-  friendshipsReceived: Friendship[];
+  @OneToMany('Friendship', 'userTwo')
+  friendshipsReceived: any[];
 }

@@ -4,7 +4,8 @@ import { Repository } from 'typeorm';
 import { UserFavoriteSport } from '../sport/entities/user-favorite-sport.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { User, UserRole, UserStatus } from './entities/user.entity';
+import { User, UserRole, UserStatus, UserType } from './entities/user.entity';
+import { CoachProfile } from './entities/coach-profile.entity';
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,8 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserFavoriteSport)
     private readonly userFavoriteSportRepository: Repository<UserFavoriteSport>,
+    @InjectRepository(CoachProfile)
+    private readonly coachProfileRepository: Repository<CoachProfile>,
   ) {}
 
   async create(createUserInput: CreateUserInput): Promise<User> {
@@ -31,6 +34,30 @@ export class UserService {
   async findAll(): Promise<User[]> {
     return this.userRepository.find({
       relations: ['favoriteSports', 'favoriteSports.sport', 'avatar'],
+    });
+  }
+
+  async findAllCoaches(): Promise<User[]> {
+    return this.userRepository.find({
+      where: { userType: UserType.COACH },
+      relations: [
+        'favoriteSports',
+        'favoriteSports.sport',
+        'avatar',
+        'coachProfile',
+      ],
+    });
+  }
+
+  async findCoachesWithProfiles(): Promise<User[]> {
+    return this.userRepository.find({
+      where: { userType: UserType.COACH },
+      relations: [
+        'favoriteSports',
+        'favoriteSports.sport',
+        'avatar',
+        'coachProfile',
+      ],
     });
   }
 
