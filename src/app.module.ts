@@ -13,6 +13,7 @@ import { StadiumModule } from './modules/stadium/stadium.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
 import { FriendshipModule } from './modules/frientship/friendship.module';
+import { MatchingModule } from './modules/matching/matching.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { FriendshipModule } from './modules/frientship/friendship.module';
     }),
     UserModule,
     FriendshipModule,
+    MatchingModule,
     SportModule,
     AuthModule,
     StadiumModule,

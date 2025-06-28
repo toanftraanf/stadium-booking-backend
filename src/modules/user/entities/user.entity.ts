@@ -16,6 +16,7 @@ import {
   FriendRequestStatus,
 } from '../../frientship/entities/friend-request.entity';
 import { Friendship } from '../../frientship/entities/friendship.entity';
+import { Swipe } from '../../matching/enitities/swipe.entity';
 
 export enum UserStatus {
   PENDING = 'pending',
@@ -139,6 +140,11 @@ export class User {
   @Field()
   @UpdateDateColumn()
   updatedAt: Date;
+  @OneToMany(() => Swipe, (s) => s.swiper)
+  swiped: Swipe[];
+
+  @OneToMany(() => Swipe, (s) => s.swipee)
+  swipedBy: Swipe[];
   @OneToMany(() => FriendRequest, (fr) => fr.requester)
   sentFriendRequests: FriendRequest[];
 

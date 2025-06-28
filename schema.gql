@@ -30,6 +30,14 @@ enum FriendRequestStatus {
   REJECTED
 }
 
+type Swipe {
+  id: ID!
+  swiper: User!
+  swipee: User!
+  liked: Boolean!
+  createdAt: DateTime!
+}
+
 type User {
   id: Int!
   phoneNumber: String
@@ -48,6 +56,11 @@ type User {
   favoriteSports: [UserFavoriteSport!]!
   createdAt: DateTime!
   updatedAt: DateTime!
+  name: String
+  age: Int
+  avatarUrl: String
+  location: String
+  schedule: String
 }
 
 enum UserStatus {
@@ -178,11 +191,17 @@ type Reservation {
   createdAt: DateTime!
 }
 
+type SwipeResponse {
+  isMatch: Boolean!
+  swipe: Swipe!
+}
+
 type Query {
   users: [User!]!
   user(id: Int!): User!
   incomingFriendRequests: [FriendRequest!]!
   myFriends: [User!]!
+  matchCandidates: [User!]!
   sports: [Sport!]!
   sport(id: Int!): Sport!
   sportWithUserCount(id: Int!): Sport!
@@ -220,8 +239,10 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: Int!): User!
+  updateUserAvatar(input: UpdateUserAvatarInput!): User!
   sendFriendRequest(input: CreateFriendRequestInput!): FriendRequest!
   respondFriendRequest(requestId: String!, input: RespondFriendRequestInput!): FriendRequest!
+  swipeUser(targetId: Int!, liked: Boolean!): SwipeResponse!
   createSport(createSportInput: CreateSportInput!): Sport!
   updateSport(updateSportInput: UpdateSportInput!): Sport!
   removeSport(id: Int!): Sport!
@@ -295,6 +316,11 @@ input UpdateUserInput {
   sex: UserSex
   address: String
   level: UserLevel
+}
+
+input UpdateUserAvatarInput {
+  id: Int!
+  avatarUrl: String!
 }
 
 input CreateFriendRequestInput {
