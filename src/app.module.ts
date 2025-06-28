@@ -14,6 +14,7 @@ import { UploadModule } from './modules/upload/upload.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
 import { FriendshipModule } from './modules/frientship/friendship.module';
 import { MatchingModule } from './modules/matching/matching.module';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { MatchingModule } from './modules/matching/matching.module';
     StadiumModule,
     UploadModule,
     ReservationModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],
