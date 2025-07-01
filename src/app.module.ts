@@ -12,7 +12,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { StadiumModule } from './modules/stadium/stadium.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
-import { FriendshipModule } from './modules/frientship/friendship.module';
+import { FriendshipModule } from './modules/friendship/friendship.module';
+import { MatchingModule } from './modules/matching/matching.module';
 import { ReviewModule } from './modules/review/review.module';
 import { EventModule } from './modules/event/event.module';
 
@@ -43,6 +44,7 @@ import { EventModule } from './modules/event/event.module';
     }),
     UserModule,
     FriendshipModule,
+    MatchingModule,
     SportModule,
     AuthModule,
     StadiumModule,

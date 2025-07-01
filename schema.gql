@@ -15,6 +15,43 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type FriendRequest {
+  id: ID!
+  requester: User!
+  recipient: User!
+  status: FriendRequestStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+type Friendship {
+  """Primary key ID"""
+  id: Int!
+
+  """User who initiated the friendship"""
+  userOne: User!
+
+  """User who received the friendship"""
+  userTwo: User!
+
+  """When the friendship was created"""
+  createdAt: DateTime!
+}
+
+type Swipe {
+  id: ID!
+  swiper: User!
+  swipee: User!
+  liked: Boolean!
+  createdAt: DateTime!
+}
+
 type CoachProfile {
   id: ID!
   userId: Int!
@@ -54,6 +91,15 @@ type User {
   favoriteSports: [UserFavoriteSport!]
   createdAt: DateTime!
   updatedAt: DateTime!
+  sentFriendRequests: [FriendRequest!]
+  receivedFriendRequests: [FriendRequest!]
+  friendshipsInitiated: [Friendship!]
+  friendshipsReceived: [Friendship!]
+  name: String
+  age: Int
+  avatarUrl: String
+  location: String
+  schedule: String
 }
 
 enum UserStatus {
@@ -203,19 +249,9 @@ type CoachBooking {
   createdAt: DateTime!
 }
 
-type FriendRequest {
-  id: ID!
-  requester: User!
-  recipient: User!
-  status: FriendRequestStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-enum FriendRequestStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
+type SwipeResponse {
+  isMatch: Boolean!
+  swipe: Swipe!
 }
 
 type Review {
@@ -316,6 +352,7 @@ type Query {
   coachProfileByUserId(userId: Int!): CoachProfile
   incomingFriendRequests: [FriendRequest!]!
   myFriends: [User!]!
+  matchCandidates: [User!]!
   sports: [Sport!]!
   sport(id: Int!): Sport!
   sportWithUserCount(id: Int!): Sport!
@@ -371,12 +408,14 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: Int!): User!
+  updateUserAvatar(input: UpdateUserAvatarInput!): User!
   createCoachProfile(createCoachProfileInput: CreateCoachProfileInput!): CoachProfile!
   updateCoachProfile(updateCoachProfileInput: UpdateCoachProfileInput!): CoachProfile!
   removeCoachProfile(id: Int!): CoachProfile!
   toggleCoachAvailability(id: Int!): CoachProfile!
   sendFriendRequest(input: CreateFriendRequestInput!): FriendRequest!
   respondFriendRequest(requestId: String!, input: RespondFriendRequestInput!): FriendRequest!
+  swipeUser(targetId: Int!, liked: Boolean!): SwipeResponse!
   createSport(createSportInput: CreateSportInput!): Sport!
   updateSport(updateSportInput: UpdateSportInput!): Sport!
   removeSport(id: Int!): Sport!
@@ -465,6 +504,11 @@ input UpdateUserInput {
   latitude: Float
   longitude: Float
   level: UserLevel
+}
+
+input UpdateUserAvatarInput {
+  id: Int!
+  avatarUrl: String!
 }
 
 input CreateCoachProfileInput {

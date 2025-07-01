@@ -12,6 +12,12 @@ import {
 } from 'typeorm';
 import { UserFavoriteSport } from '../../sport/entities/user-favorite-sport.entity';
 import { File } from '../../upload/entities/file.entity';
+import {
+  FriendRequest,
+  FriendRequestStatus,
+} from '../../friendship/entities/friend-request.entity';
+import { Friendship } from '../../friendship/entities/friendship.entity';
+import { Swipe } from 'src/modules/matching/enitities/swipe.entity';
 import { CoachProfile } from './coach-profile.entity';
 
 export enum UserStatus {
@@ -50,6 +56,8 @@ registerEnumType(UserRole, { name: 'UserRole' });
 registerEnumType(UserSex, { name: 'UserSex' });
 registerEnumType(UserType, { name: 'UserType' });
 registerEnumType(UserLevel, { name: 'UserLevel' });
+registerEnumType(FriendRequestStatus, { name: 'FriendRequestStatus' });
+
 @ObjectType()
 @Entity({ name: 'users' })
 export class User {
@@ -132,14 +140,11 @@ export class User {
   rating?: number;
 
   @Field(() => CoachProfile, { nullable: true })
-  @OneToOne(() => CoachProfile, (coachProfile) => coachProfile.user)
+  @OneToOne(() => CoachProfile, (cp) => cp.user)
   coachProfile?: CoachProfile;
 
   @Field(() => [UserFavoriteSport], { nullable: true })
-  @OneToMany(
-    () => UserFavoriteSport,
-    (userFavoriteSport) => userFavoriteSport.user,
-  )
+  @OneToMany(() => UserFavoriteSport, (ufs) => ufs.user)
   favoriteSports?: UserFavoriteSport[];
 
   @Field()
@@ -149,15 +154,28 @@ export class User {
   @Field()
   @UpdateDateColumn()
   updatedAt: Date;
-  @OneToMany('FriendRequest', 'requester')
-  sentFriendRequests: any[];
 
-  @OneToMany('FriendRequest', 'recipient')
-  receivedFriendRequests: any[];
+  @OneToMany(() => Swipe, (s) => s.swiper)
+  swiped: Swipe[];
 
-  @OneToMany('Friendship', 'userOne')
-  friendshipsInitiated: any[];
+  @OneToMany(() => Swipe, (s) => s.swipee)
+  swipedBy: Swipe[];
 
-  @OneToMany('Friendship', 'userTwo')
-  friendshipsReceived: any[];
+  // **GraphQL & TypeORM relations với FriendRequest**
+  @Field(() => [FriendRequest], { nullable: true })
+  @OneToMany(() => FriendRequest, (fr) => fr.requester)
+  sentFriendRequests?: FriendRequest[];
+
+  @Field(() => [FriendRequest], { nullable: true })
+  @OneToMany(() => FriendRequest, (fr) => fr.recipient)
+  receivedFriendRequests?: FriendRequest[];
+
+  // **GraphQL & TypeORM relations với Friendship**
+  @Field(() => [Friendship], { nullable: true })
+  @OneToMany(() => Friendship, (f) => f.userOne)
+  friendshipsInitiated?: Friendship[];
+
+  @Field(() => [Friendship], { nullable: true })
+  @OneToMany(() => Friendship, (f) => f.userTwo)
+  friendshipsReceived?: Friendship[];
 }

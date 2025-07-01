@@ -99,7 +99,6 @@ export class OtpService {
         console.log('Would send to:', validatedPhoneNumber);
         return encryptedOTP;
       }
-
       console.log('Attempting to send OTP to:', validatedPhoneNumber);
       console.log(
         'Using Twilio phone number:',
