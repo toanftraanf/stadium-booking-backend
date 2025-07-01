@@ -5,6 +5,8 @@ import {
   IsEmail,
   IsEnum,
   IsInt,
+  IsLatitude,
+  IsLongitude,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -94,6 +96,16 @@ export class UpdateUserInput {
   @IsOptional()
   @IsString()
   address?: string;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  @IsLatitude()
+  latitude?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  @IsLongitude()
+  longitude?: number;
 
   @Field(() => UserLevel, { nullable: true })
   @IsOptional()

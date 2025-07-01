@@ -4,7 +4,10 @@ import { Repository } from 'typeorm';
 import { UserFavoriteSport } from '../sport/entities/user-favorite-sport.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { User, UserRole, UserStatus } from './entities/user.entity';
+import { UpdateUserAvatarInput } from './dto/update-user-avatar.input';
+import { File } from '../upload/entities/file.entity';
+import { User, UserRole, UserStatus, UserType } from './entities/user.entity';
+import { CoachProfile } from './entities/coach-profile.entity';
 
 @Injectable()
 export class UserService {
@@ -15,6 +18,10 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserFavoriteSport)
     private readonly userFavoriteSportRepository: Repository<UserFavoriteSport>,
+    @InjectRepository(File)
+    private readonly fileRepository: Repository<File>,
+    @InjectRepository(CoachProfile)
+    private readonly coachProfileRepository: Repository<CoachProfile>,
   ) {}
 
   async create(createUserInput: CreateUserInput): Promise<User> {
@@ -31,6 +38,30 @@ export class UserService {
   async findAll(): Promise<User[]> {
     return this.userRepository.find({
       relations: ['favoriteSports', 'favoriteSports.sport', 'avatar'],
+    });
+  }
+
+  async findAllCoaches(): Promise<User[]> {
+    return this.userRepository.find({
+      where: { userType: UserType.COACH },
+      relations: [
+        'favoriteSports',
+        'favoriteSports.sport',
+        'avatar',
+        'coachProfile',
+      ],
+    });
+  }
+
+  async findCoachesWithProfiles(): Promise<User[]> {
+    return this.userRepository.find({
+      where: { userType: UserType.COACH },
+      relations: [
+        'favoriteSports',
+        'favoriteSports.sport',
+        'avatar',
+        'coachProfile',
+      ],
     });
   }
 
@@ -68,5 +99,26 @@ export class UserService {
   async remove(id: number): Promise<User> {
     const user = await this.findOne(id);
     return this.userRepository.remove(user);
+  }
+  async updateAvatar(input: UpdateUserAvatarInput): Promise<User> {
+    const { id, avatarUrl } = input;
+
+    // 1) Lấy user (đã include relation avatar)
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['avatar'],
+    });
+    if (!user) throw new NotFoundException(`User #${id} không tồn tại`);
+
+    // 2) Tìm hoặc tạo FileEntity theo URL
+    let file = await this.fileRepository.findOne({ where: { url: avatarUrl } });
+    if (!file) {
+      file = this.fileRepository.create({ url: avatarUrl });
+      await this.fileRepository.save(file);
+    }
+
+    // 3) Gán relation và lưu user
+    user.avatar = file;
+    return this.fileRepository.save(user);
   }
 }

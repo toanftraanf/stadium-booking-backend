@@ -8,17 +8,14 @@ import {
   Index,
 } from 'typeorm';
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
-import { User } from '../../user/entities/user.entity';
+import type { User } from '../../user/entities/user.entity';
 
 export enum FriendRequestStatus {
   PENDING = 'PENDING',
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
 }
-
-registerEnumType(FriendRequestStatus, {
-  name: 'FriendRequestStatus',
-});
+registerEnumType(FriendRequestStatus, { name: 'FriendRequestStatus' });
 
 @ObjectType()
 @Entity('friend_requests')
@@ -28,14 +25,13 @@ export class FriendRequest {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: string;
 
-  @Field(() => User)
-  @ManyToOne(() => User, (u) => u.sentFriendRequests, { onDelete: 'CASCADE' })
+  // lazy-load GraphQL type + string-based TypeORM relation
+  @Field(() => require('../../user/entities/user.entity').User)
+  @ManyToOne('User', 'sentFriendRequests', { onDelete: 'CASCADE' })
   requester: User;
 
-  @Field(() => User)
-  @ManyToOne(() => User, (u) => u.receivedFriendRequests, {
-    onDelete: 'CASCADE',
-  })
+  @Field(() => require('../../user/entities/user.entity').User)
+  @ManyToOne('User', 'receivedFriendRequests', { onDelete: 'CASCADE' })
   recipient: User;
 
   @Field(() => FriendRequestStatus)
@@ -46,11 +42,6 @@ export class FriendRequest {
   })
   status: FriendRequestStatus;
 
-  @Field()
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @Field()
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Field() @CreateDateColumn() createdAt: Date;
+  @Field() @UpdateDateColumn() updatedAt: Date;
 }

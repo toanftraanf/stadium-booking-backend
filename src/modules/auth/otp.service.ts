@@ -16,7 +16,7 @@ export class OtpService {
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
   ) {
-    this.twilioClient = twilio(
+    this.twilioClient = new twilio.Twilio(
       this.configService.get('TWILIO_ACCOUNT_SID'),
       this.configService.get('TWILIO_AUTH_TOKEN'),
     );
@@ -99,7 +99,6 @@ export class OtpService {
         console.log('Would send to:', validatedPhoneNumber);
         return encryptedOTP;
       }
-
       console.log('Attempting to send OTP to:', validatedPhoneNumber);
       console.log(
         'Using Twilio phone number:',

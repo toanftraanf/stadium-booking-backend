@@ -30,6 +30,45 @@ enum FriendRequestStatus {
   REJECTED
 }
 
+type Friendship {
+  """Primary key ID"""
+  id: Int!
+
+  """User who initiated the friendship"""
+  userOne: User!
+
+  """User who received the friendship"""
+  userTwo: User!
+
+  """When the friendship was created"""
+  createdAt: DateTime!
+}
+
+type Swipe {
+  id: ID!
+  swiper: User!
+  swipee: User!
+  liked: Boolean!
+  createdAt: DateTime!
+}
+
+type CoachProfile {
+  id: ID!
+  userId: Int!
+  bio: String
+  hourlyRate: Float
+  availability: String
+  yearsOfExperience: Int
+  certifications: [String!]
+  coachImages: [String!]
+  isAvailable: Boolean!
+  minSessionDuration: Float
+  maxSessionDuration: Float
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User
+}
+
 type User {
   id: Int!
   phoneNumber: String
@@ -43,11 +82,24 @@ type User {
   dob: DateTime
   sex: UserSex
   address: String
+  latitude: Float
+  longitude: Float
   userType: UserType
   level: UserLevel
-  favoriteSports: [UserFavoriteSport!]!
+  rating: Float
+  coachProfile: CoachProfile
+  favoriteSports: [UserFavoriteSport!]
   createdAt: DateTime!
   updatedAt: DateTime!
+  sentFriendRequests: [FriendRequest!]
+  receivedFriendRequests: [FriendRequest!]
+  friendshipsInitiated: [Friendship!]
+  friendshipsReceived: [Friendship!]
+  name: String
+  age: Int
+  avatarUrl: String
+  location: String
+  schedule: String
 }
 
 enum UserStatus {
@@ -178,6 +230,30 @@ type Reservation {
   createdAt: DateTime!
 }
 
+type CoachBooking {
+  id: ID!
+  clientId: Int!
+  coachProfileId: Int!
+  sport: String!
+  sessionType: String!
+  date: String!
+  startTime: String!
+  endTime: String!
+  totalPrice: Float!
+  status: String!
+  notes: String
+  location: String
+  isEvent: Boolean!
+  client: User
+  coachProfile: CoachProfile
+  createdAt: DateTime!
+}
+
+type SwipeResponse {
+  isMatch: Boolean!
+  swipe: Swipe!
+}
+
 type Review {
   id: ID!
   reservationId: Int!
@@ -188,6 +264,19 @@ type Review {
   reservation: Reservation!
   stadium: Stadium!
   user: User!
+  createdAt: DateTime!
+}
+
+type UserReview {
+  id: ID!
+  coachBookingId: Int!
+  coachProfileId: Int!
+  clientId: Int!
+  rating: Int!
+  comment: String!
+  coachBooking: CoachBooking
+  coachProfile: CoachProfile
+  client: User
   createdAt: DateTime!
 }
 
@@ -205,11 +294,65 @@ type ReviewStats {
   ratingBreakdown: RatingBreakdown!
 }
 
+type UserRatingBreakdown {
+  star1: Float!
+  star2: Float!
+  star3: Float!
+  star4: Float!
+  star5: Float!
+}
+
+type UserReviewStats {
+  averageRating: Float!
+  totalReviews: Float!
+  ratingBreakdown: UserRatingBreakdown!
+}
+
+type EventParticipant {
+  id: ID!
+  user: User!
+  status: EventParticipantStatus!
+  joinedAt: DateTime!
+}
+
+enum EventParticipantStatus {
+  PENDING
+  CONFIRMED
+  DECLINED
+}
+
+type Event {
+  id: ID!
+  title: String!
+  description: String
+  additionalNotes: String
+  eventDate: String!
+  startTime: String!
+  endTime: String!
+  maxParticipants: Int!
+  isPrivate: Boolean!
+  isSharedCost: Boolean!
+  stadium: Stadium!
+  coach: CoachProfile
+  coachBooking: CoachBooking!
+  creator: User!
+  sports: [Sport!]!
+  participants: [EventParticipant!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
   users: [User!]!
+  coaches: [User!]!
   user(id: Int!): User!
+  coachProfiles: [CoachProfile!]!
+  availableCoachProfiles: [CoachProfile!]!
+  coachProfile(id: Int!): CoachProfile!
+  coachProfileByUserId(userId: Int!): CoachProfile
   incomingFriendRequests: [FriendRequest!]!
   myFriends: [User!]!
+  matchCandidates: [User!]!
   sports: [Sport!]!
   sport(id: Int!): Sport!
   sportWithUserCount(id: Int!): Sport!
@@ -236,11 +379,24 @@ type Query {
   reservationsByStadium(stadiumId: Int!): [Reservation!]!
   stadiumReservations(stadiumId: Int!, date: String!): [Reservation!]!
   ownerStadiumReservationsByDateRange(ownerId: Int!, startDate: String!, endDate: String!): [Reservation!]!
+  coachBookings: [CoachBooking!]!
+  coachBookingsByCoachProfile(coachProfileId: Int!): [CoachBooking!]!
+  coachBookingsByClient(clientId: Int!): [CoachBooking!]!
+  coachBooking(id: Int!): CoachBooking!
   stadiumReviews(stadiumId: Int!): [Review!]!
   reviewStats(stadiumId: Int!): ReviewStats!
   userReviews(userId: Int!): [Review!]!
   review(id: Int!): Review!
   stadiumAverageRating(stadiumId: Int!): Float!
+  userReviewsByCoachProfile(coachProfileId: Int!): [UserReview!]!
+  userReviewsByClient(clientId: Int!): [UserReview!]!
+  userReview(id: Int!): UserReview!
+  coachReviewStats(coachProfileId: Int!): UserReviewStats!
+  coachAverageRating(coachProfileId: Int!): Float!
+  getEvent(id: Float!): Event!
+  getMyEvents: [Event!]!
+  getPublicEvents: [Event!]!
+  events: [Event!]!
 }
 
 input FindStadiumsByAddressInput {
@@ -252,14 +408,20 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: Int!): User!
+  updateUserAvatar(input: UpdateUserAvatarInput!): User!
+  createCoachProfile(createCoachProfileInput: CreateCoachProfileInput!): CoachProfile!
+  updateCoachProfile(updateCoachProfileInput: UpdateCoachProfileInput!): CoachProfile!
+  removeCoachProfile(id: Int!): CoachProfile!
+  toggleCoachAvailability(id: Int!): CoachProfile!
   sendFriendRequest(input: CreateFriendRequestInput!): FriendRequest!
   respondFriendRequest(requestId: String!, input: RespondFriendRequestInput!): FriendRequest!
+  swipeUser(targetId: Int!, liked: Boolean!): SwipeResponse!
   createSport(createSportInput: CreateSportInput!): Sport!
   updateSport(updateSportInput: UpdateSportInput!): Sport!
   removeSport(id: Int!): Sport!
   addFavoriteSport(addFavoriteSportInput: AddFavoriteSportInput!): UserFavoriteSport!
   removeFavoriteSport(userId: Int!, sportId: Int!): Boolean!
-  checkExistingUser(phoneNumber: String!, userRole: String!): User!
+  checkExistingUser(phoneNumber: String!, userRole: UserRole!): User!
   authenticate(phoneNumber: String!, otp: String!): AuthResponse!
   resetOTP(phoneNumber: String!): Boolean!
   googleAuthMobile(idToken: String!): AuthResponse!
@@ -288,8 +450,17 @@ type Mutation {
   updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
   updateReservationStatus(id: Int!, status: String!): Reservation!
   removeReservation(id: Int!): Reservation!
+  createCoachBooking(createCoachBookingInput: CreateCoachBookingInput!): CoachBooking!
+  updateCoachBooking(updateCoachBookingInput: UpdateCoachBookingInput!): CoachBooking!
+  removeCoachBooking(id: Int!): CoachBooking!
+  cancelCoachBooking(id: Int!): CoachBooking!
+  confirmCoachBooking(id: Int!): CoachBooking!
   createReview(createReviewInput: CreateReviewInput!): Review!
   recalculateAllStadiumRatings: Boolean!
+  createUserReview(createUserReviewInput: CreateUserReviewInput!): UserReview!
+  createEvent(input: CreateEventInput!): Event!
+  joinEvent(eventId: String!): EventParticipant!
+  leaveEvent(eventId: String!): Boolean!
 }
 
 input CreateUserInput {
@@ -308,6 +479,8 @@ input CreateUserInput {
   dob: DateTime
   sex: UserSex
   address: String
+  latitude: Float
+  longitude: Float
   level: UserLevel
 }
 
@@ -328,7 +501,41 @@ input UpdateUserInput {
   dob: DateTime
   sex: UserSex
   address: String
+  latitude: Float
+  longitude: Float
   level: UserLevel
+}
+
+input UpdateUserAvatarInput {
+  id: Int!
+  avatarUrl: String!
+}
+
+input CreateCoachProfileInput {
+  userId: Int!
+  bio: String
+  hourlyRate: Float
+  availability: String
+  yearsOfExperience: Int
+  certifications: [String!]
+  coachImages: [String!]
+  isAvailable: Boolean
+  minSessionDuration: Float
+  maxSessionDuration: Float
+}
+
+input UpdateCoachProfileInput {
+  userId: Int
+  bio: String
+  hourlyRate: Float
+  availability: String
+  yearsOfExperience: Int
+  certifications: [String!]
+  coachImages: [String!]
+  isAvailable: Boolean
+  minSessionDuration: Float
+  maxSessionDuration: Float
+  id: Int!
 }
 
 input CreateFriendRequestInput {
@@ -527,10 +734,62 @@ input UpdateReservationInput {
   id: Int!
 }
 
+input CreateCoachBookingInput {
+  clientId: Int!
+  coachProfileId: Int!
+  sport: String!
+  sessionType: String!
+  date: String!
+  startTime: String!
+  endTime: String!
+  totalPrice: Float!
+  notes: String
+  location: String
+  status: String
+}
+
+input UpdateCoachBookingInput {
+  clientId: Int
+  coachProfileId: Int
+  sport: String
+  sessionType: String
+  date: String
+  startTime: String
+  endTime: String
+  totalPrice: Float
+  notes: String
+  location: String
+  status: String
+  id: Int!
+}
+
 input CreateReviewInput {
   reservationId: Int!
   stadiumId: Int!
   userId: Int!
   rating: Int!
   comment: String!
+}
+
+input CreateUserReviewInput {
+  coachBookingId: Int!
+  coachProfileId: Int!
+  clientId: Int!
+  rating: Int!
+  comment: String!
+}
+
+input CreateEventInput {
+  title: String!
+  sports: [Int!]!
+  date: String!
+  startTime: String!
+  endTime: String!
+  stadiumId: Int!
+  coachId: Int!
+  maxParticipants: Int!
+  description: String
+  additionalNotes: String
+  isSharedCost: Boolean!
+  isPrivate: Boolean!
 }
