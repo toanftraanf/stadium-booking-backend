@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Swipe } from './enitities/swipe.entity';
-import { Friendship } from '../frientship/entities/friendship.entity';
+import { Friendship } from '../friendship/entities/friendship.entity';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 

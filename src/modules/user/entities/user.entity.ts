@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -14,9 +15,10 @@ import { File } from '../../upload/entities/file.entity';
 import {
   FriendRequest,
   FriendRequestStatus,
-} from '../../frientship/entities/friend-request.entity';
-import { Friendship } from '../../frientship/entities/friendship.entity';
-import { Swipe } from '../../matching/enitities/swipe.entity';
+} from '../../friendship/entities/friend-request.entity';
+import { Friendship } from '../../friendship/entities/friendship.entity';
+import { Swipe } from 'src/modules/matching/enitities/swipe.entity';
+import { CoachProfile } from './coach-profile.entity';
 
 export enum UserStatus {
   PENDING = 'pending',
@@ -54,9 +56,8 @@ registerEnumType(UserRole, { name: 'UserRole' });
 registerEnumType(UserSex, { name: 'UserSex' });
 registerEnumType(UserType, { name: 'UserType' });
 registerEnumType(UserLevel, { name: 'UserLevel' });
-registerEnumType(FriendRequestStatus, {
-  name: 'FriendRequestStatus',
-});
+registerEnumType(FriendRequestStatus, { name: 'FriendRequestStatus' });
+
 @ObjectType()
 @Entity({ name: 'users' })
 export class User {
@@ -118,6 +119,14 @@ export class User {
   @Column({ nullable: true })
   address?: string;
 
+  @Field(() => Number, { nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  latitude?: number;
+
+  @Field(() => Number, { nullable: true })
+  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  longitude?: number;
+
   @Field(() => UserType, { nullable: true })
   @Column({ type: 'enum', enum: UserType, nullable: true })
   userType?: UserType;
@@ -126,12 +135,17 @@ export class User {
   @Column({ type: 'enum', enum: UserLevel, nullable: true })
   level?: UserLevel;
 
-  @Field(() => [UserFavoriteSport])
-  @OneToMany(
-    () => UserFavoriteSport,
-    (userFavoriteSport) => userFavoriteSport.user,
-  )
-  favoriteSports: UserFavoriteSport[];
+  @Field(() => Number, { nullable: true })
+  @Column('decimal', { precision: 3, scale: 2, default: 0 })
+  rating?: number;
+
+  @Field(() => CoachProfile, { nullable: true })
+  @OneToOne(() => CoachProfile, (cp) => cp.user)
+  coachProfile?: CoachProfile;
+
+  @Field(() => [UserFavoriteSport], { nullable: true })
+  @OneToMany(() => UserFavoriteSport, (ufs) => ufs.user)
+  favoriteSports?: UserFavoriteSport[];
 
   @Field()
   @CreateDateColumn()
@@ -140,20 +154,28 @@ export class User {
   @Field()
   @UpdateDateColumn()
   updatedAt: Date;
+
   @OneToMany(() => Swipe, (s) => s.swiper)
   swiped: Swipe[];
 
   @OneToMany(() => Swipe, (s) => s.swipee)
   swipedBy: Swipe[];
+
+  // **GraphQL & TypeORM relations với FriendRequest**
+  @Field(() => [FriendRequest], { nullable: true })
   @OneToMany(() => FriendRequest, (fr) => fr.requester)
-  sentFriendRequests: FriendRequest[];
+  sentFriendRequests?: FriendRequest[];
 
+  @Field(() => [FriendRequest], { nullable: true })
   @OneToMany(() => FriendRequest, (fr) => fr.recipient)
-  receivedFriendRequests: FriendRequest[];
+  receivedFriendRequests?: FriendRequest[];
 
+  // **GraphQL & TypeORM relations với Friendship**
+  @Field(() => [Friendship], { nullable: true })
   @OneToMany(() => Friendship, (f) => f.userOne)
-  friendshipsInitiated: Friendship[];
+  friendshipsInitiated?: Friendship[];
 
+  @Field(() => [Friendship], { nullable: true })
   @OneToMany(() => Friendship, (f) => f.userTwo)
-  friendshipsReceived: Friendship[];
+  friendshipsReceived?: Friendship[];
 }

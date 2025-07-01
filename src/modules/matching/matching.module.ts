@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MatchingService } from './matching.service';
 import { MatchingResolver } from './matching.resolver';
 import { Swipe } from './enitities/swipe.entity';
-import { Friendship } from '../frientship/entities/friendship.entity';
+import { Friendship } from '../friendship/entities/friendship.entity';
 import { UserModule } from '../user/user.module';
 import { User } from '../user/entities/user.entity';
 

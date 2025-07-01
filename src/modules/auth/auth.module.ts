@@ -12,9 +12,10 @@ import { AuthResolver } from './auth.resolver';
 import { AuthService } from './auth.service';
 import { OtpService } from './otp.service';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 // ← Import thêm JwtStrategy
-import { JwtStrategy } from './jwt.strategy';
+//import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [

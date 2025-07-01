@@ -1,4 +1,5 @@
-// src/matching/entities/swipe.entity.ts
+// src/modules/matching/entities/swipe.entity.ts
+
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,7 +9,7 @@ import {
   Unique,
 } from 'typeorm';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { User } from '../../user/entities/user.entity';
+import type { User } from '../../user/entities/user.entity';
 
 @ObjectType()
 @Entity('swipes')
@@ -18,12 +19,13 @@ export class Swipe {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: string;
 
-  @Field(() => User)
-  @ManyToOne(() => User, (u) => u.swiped, { onDelete: 'CASCADE' })
+  // Hoãn resolve GraphQL type và dùng string-based relation
+  @Field(() => require('../../user/entities/user.entity').User)
+  @ManyToOne('User', 'swiped', { onDelete: 'CASCADE' })
   swiper: User;
 
-  @Field(() => User)
-  @ManyToOne(() => User, (u) => u.swipedBy, { onDelete: 'CASCADE' })
+  @Field(() => require('../../user/entities/user.entity').User)
+  @ManyToOne('User', 'swipedBy', { onDelete: 'CASCADE' })
   swipee: User;
 
   @Field()
