@@ -119,6 +119,11 @@ export class UserService {
 
     // 3) Gán relation và lưu user
     user.avatar = file;
-    return this.fileRepository.save(user);
+    await this.userRepository.save(user);
+    // đúng: findOneOrFail trả về Promise<User> hoặc ném lỗi nếu không tìm thấy
+    return this.userRepository.findOneOrFail({
+      where: { id: user.id },
+      relations: ['avatar', 'favoriteSports', 'favoriteSports.sport'],
+    });
   }
 }
