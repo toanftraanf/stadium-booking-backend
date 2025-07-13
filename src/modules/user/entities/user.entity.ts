@@ -139,6 +139,10 @@ export class User {
   @Column('decimal', { precision: 3, scale: 2, default: 0 })
   rating?: number;
 
+  @Field()
+  @Column({ type: 'boolean', default: false })
+  hasSubscription: boolean;
+
   @Field(() => CoachProfile, { nullable: true })
   @OneToOne(() => CoachProfile, (cp) => cp.user)
   coachProfile?: CoachProfile;

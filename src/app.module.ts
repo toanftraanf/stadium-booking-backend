@@ -16,6 +16,9 @@ import { FriendshipModule } from './modules/friendship/friendship.module';
 import { MatchingModule } from './modules/matching/matching.module';
 import { ReviewModule } from './modules/review/review.module';
 import { EventModule } from './modules/event/event.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
+import { UserSubscriptionModule } from './modules/user-subscription/user-subscription.module';
+import { PaymentMethodModule } from './modules/payment-method/payment-method.module';
 
 @Module({
   imports: [
@@ -52,6 +55,9 @@ import { EventModule } from './modules/event/event.module';
     ReservationModule,
     ReviewModule,
     EventModule,
+    SubscriptionModule,
+    UserSubscriptionModule,
+    PaymentMethodModule,
   ],
   controllers: [AppController],
   providers: [AppService],
