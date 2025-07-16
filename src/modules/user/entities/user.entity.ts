@@ -182,4 +182,8 @@ export class User {
   @Field(() => [Friendship], { nullable: true })
   @OneToMany(() => Friendship, (f) => f.userTwo)
   friendshipsReceived?: Friendship[];
+
+  @Field({ nullable: true })
+  @Column({ name: 'firebase_uid', unique: true, nullable: true })
+  firebaseUid?: string;
 }

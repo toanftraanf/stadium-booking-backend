@@ -96,6 +96,7 @@ type User {
   receivedFriendRequests: [FriendRequest!]
   friendshipsInitiated: [Friendship!]
   friendshipsReceived: [Friendship!]
+  firebaseUid: String
   name: String
   age: Int
   avatarUrl: String
@@ -486,7 +487,7 @@ type Mutation {
   addFavoriteSport(addFavoriteSportInput: AddFavoriteSportInput!): UserFavoriteSport!
   removeFavoriteSport(userId: Int!, sportId: Int!): Boolean!
   checkExistingUser(phoneNumber: String!, userRole: UserRole!): User!
-  authenticate(phoneNumber: String!, otp: String!): AuthResponse!
+  authenticate(phoneNumber: String!, firebaseUid: String): AuthResponse!
   resetOTP(phoneNumber: String!): Boolean!
   googleAuthMobile(idToken: String!): AuthResponse!
   registerOwner(phoneNumber: String!, fullName: String!): User!
@@ -553,6 +554,7 @@ input CreateUserInput {
   latitude: Float
   longitude: Float
   level: UserLevel
+  firebaseUid: String
 }
 
 input UpdateUserInput {
@@ -575,6 +577,7 @@ input UpdateUserInput {
   latitude: Float
   longitude: Float
   level: UserLevel
+  firebaseUid: String
 }
 
 input UpdateUserAvatarInput {

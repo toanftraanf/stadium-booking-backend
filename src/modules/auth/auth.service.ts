@@ -306,4 +306,28 @@ export class AuthService {
       verifyCodeExpiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME),
     });
   }
+
+  async authenticate(
+    phoneNumber: string,
+    firebaseUid?: string,
+  ): Promise<AuthResponse> {
+    const user = await this.userService.findByPhoneNumber(phoneNumber);
+    if (!user) {
+      throw new NotFoundException('Số điện thoại không tồn tại');
+    }
+    if (firebaseUid) {
+      if (user.firebaseUid && user.firebaseUid !== firebaseUid) {
+        throw new UnauthorizedException('Firebase UID không khớp');
+      }
+      if (!user.firebaseUid) {
+        user.firebaseUid = firebaseUid;
+        await this.userService.update(user.id, user);
+      }
+    }
+    const tokens = this.generateTokens(user);
+    return {
+      user,
+      ...tokens,
+    };
+  }
 }
