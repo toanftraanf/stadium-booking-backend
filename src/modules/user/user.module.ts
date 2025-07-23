@@ -8,6 +8,7 @@ import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
 import { CoachProfileResolver } from './coach-profile.resolver';
 import { CoachProfileService } from './coach-profile.service';
+import { UserController } from './user.controller';
 
 @Module({
   imports: [
@@ -20,5 +21,6 @@ import { CoachProfileService } from './coach-profile.service';
     CoachProfileService,
   ],
   exports: [UserService, CoachProfileService],
+  controllers: [UserController],
 })
 export class UserModule {}

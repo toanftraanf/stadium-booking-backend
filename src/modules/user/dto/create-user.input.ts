@@ -104,4 +104,9 @@ export class CreateUserInput {
   @IsOptional()
   @IsEnum(UserLevel)
   level?: UserLevel;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  firebaseUid?: string;
 }

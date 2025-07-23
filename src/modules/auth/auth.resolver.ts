@@ -23,11 +23,11 @@ export class AuthResolver {
   }
 
   @Mutation(() => AuthResponse, { name: 'authenticate' })
-  async login(
+  async authenticate(
     @Args('phoneNumber') phoneNumber: string,
-    @Args('otp') otp: string,
+    @Args('firebaseUid', { nullable: true }) firebaseUid?: string,
   ) {
-    return this.authService.login(phoneNumber, otp);
+    return this.authService.authenticate(phoneNumber, firebaseUid);
   }
 
   @Mutation(() => Boolean)

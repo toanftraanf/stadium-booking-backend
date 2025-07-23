@@ -87,6 +87,7 @@ type User {
   userType: UserType
   level: UserLevel
   rating: Float
+  hasSubscription: Boolean!
   coachProfile: CoachProfile
   favoriteSports: [UserFavoriteSport!]
   createdAt: DateTime!
@@ -95,6 +96,7 @@ type User {
   receivedFriendRequests: [FriendRequest!]
   friendshipsInitiated: [Friendship!]
   friendshipsReceived: [Friendship!]
+  firebaseUid: String
   name: String
   age: Int
   avatarUrl: String
@@ -342,6 +344,60 @@ type Event {
   updatedAt: DateTime!
 }
 
+type Subscription {
+  id: ID!
+  name: String!
+  description: String!
+  durationMonths: Float!
+  price: Float!
+  currency: Currency!
+  features: [String!]
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum Currency {
+  VND
+}
+
+type UserSubscription {
+  id: ID!
+  userId: Float!
+  subscriptionId: Float!
+  subscription: Subscription!
+  startDate: DateTime!
+  endDate: DateTime!
+  status: UserSubscriptionStatus!
+  isCancelled: Boolean!
+  cardId: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum UserSubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+type Card {
+  id: ID!
+  userId: Float!
+  cardType: CardType!
+  bankName: String!
+  last4: String!
+  cardToken: String
+  saveForNextPayment: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum CardType {
+  VISA
+  MASTERCARD
+}
+
 type Query {
   users: [User!]!
   coaches: [User!]!
@@ -397,6 +453,15 @@ type Query {
   getMyEvents: [Event!]!
   getPublicEvents: [Event!]!
   events: [Event!]!
+  subscription(id: Int!): Subscription!
+  subscriptions: [Subscription!]!
+  userSubscription(id: Int!): UserSubscription!
+  userSubscriptions: [UserSubscription!]!
+  userSubscriptionsByUserId(userId: Int!): [UserSubscription!]!
+  card(id: Int!): Card!
+  cards: [Card!]!
+  userCards(userId: Int!): [Card!]!
+  userSavedCard(userId: Int!): Card
 }
 
 input FindStadiumsByAddressInput {
@@ -422,7 +487,7 @@ type Mutation {
   addFavoriteSport(addFavoriteSportInput: AddFavoriteSportInput!): UserFavoriteSport!
   removeFavoriteSport(userId: Int!, sportId: Int!): Boolean!
   checkExistingUser(phoneNumber: String!, userRole: UserRole!): User!
-  authenticate(phoneNumber: String!, otp: String!): AuthResponse!
+  authenticate(phoneNumber: String!, firebaseUid: String): AuthResponse!
   resetOTP(phoneNumber: String!): Boolean!
   googleAuthMobile(idToken: String!): AuthResponse!
   registerOwner(phoneNumber: String!, fullName: String!): User!
@@ -461,6 +526,13 @@ type Mutation {
   createEvent(input: CreateEventInput!): Event!
   joinEvent(eventId: String!): EventParticipant!
   leaveEvent(eventId: String!): Boolean!
+  createSubscription(createSubscriptionInput: CreateSubscriptionInput!): Subscription!
+  updateSubscription(id: Int!, updateSubscriptionInput: UpdateSubscriptionInput!): Subscription!
+  createUserSubscription(createUserSubscriptionInput: CreateUserSubscriptionInput!): UserSubscription!
+  updateUserSubscription(id: Int!, updateUserSubscriptionInput: UpdateUserSubscriptionInput!): UserSubscription!
+  cancelUserSubscription(userId: Int!): UserSubscription!
+  createCard(createCardInput: CreateCardInput!): Card!
+  updateCard(id: Int!, updateCardInput: UpdateCardInput!): Card!
 }
 
 input CreateUserInput {
@@ -482,6 +554,7 @@ input CreateUserInput {
   latitude: Float
   longitude: Float
   level: UserLevel
+  firebaseUid: String
 }
 
 input UpdateUserInput {
@@ -504,6 +577,7 @@ input UpdateUserInput {
   latitude: Float
   longitude: Float
   level: UserLevel
+  firebaseUid: String
 }
 
 input UpdateUserAvatarInput {
@@ -792,4 +866,63 @@ input CreateEventInput {
   additionalNotes: String
   isSharedCost: Boolean!
   isPrivate: Boolean!
+}
+
+input CreateSubscriptionInput {
+  name: String!
+  description: String!
+  durationMonths: Int!
+  price: String!
+  currency: Currency!
+  features: [String!]
+  isActive: Boolean!
+}
+
+input UpdateSubscriptionInput {
+  name: String
+  description: String
+  durationMonths: Int
+  price: String
+  currency: Currency
+  features: [String!]
+  isActive: Boolean
+  id: Int!
+}
+
+input CreateUserSubscriptionInput {
+  userId: Int!
+  subscriptionId: Int!
+  startDate: DateTime!
+  endDate: DateTime!
+  status: UserSubscriptionStatus
+  cardId: Int!
+}
+
+input UpdateUserSubscriptionInput {
+  userId: Int
+  subscriptionId: Int
+  startDate: DateTime
+  endDate: DateTime
+  status: UserSubscriptionStatus
+  cardId: Int!
+  id: Int!
+}
+
+input CreateCardInput {
+  userId: Int!
+  cardType: CardType!
+  bankName: String!
+  last4: String!
+  cardToken: String
+  saveForNextPayment: Boolean!
+}
+
+input UpdateCardInput {
+  userId: Int
+  cardType: CardType
+  bankName: String
+  last4: String
+  cardToken: String
+  saveForNextPayment: Boolean
+  id: Int!
 }

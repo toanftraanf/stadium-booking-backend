@@ -273,14 +273,11 @@ export class AuthService {
       throw new BadRequestException('Số điện thoại đã được đăng ký');
     }
 
-    const otpCode = await this.otpService.sendOTP(phoneNumber);
     return await this.userService.create({
       phoneNumber,
       fullName,
       role: UserRole.OWNER,
       isVerified: false,
-      verifyCode: otpCode,
-      verifyCodeExpiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME),
     });
   }
 
@@ -296,14 +293,35 @@ export class AuthService {
       throw new BadRequestException('Số điện thoại đã được đăng ký');
     }
 
-    const otpCode = await this.otpService.sendOTP(phoneNumber);
     return await this.userService.create({
       phoneNumber,
       fullName,
       role: UserRole.CUSTOMER,
       isVerified: false,
-      verifyCode: otpCode,
-      verifyCodeExpiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME),
     });
+  }
+
+  async authenticate(
+    phoneNumber: string,
+    firebaseUid?: string,
+  ): Promise<AuthResponse> {
+    const user = await this.userService.findByPhoneNumber(phoneNumber);
+    if (!user) {
+      throw new NotFoundException('Số điện thoại không tồn tại');
+    }
+    if (firebaseUid) {
+      if (user.firebaseUid && user.firebaseUid !== firebaseUid) {
+        throw new UnauthorizedException('Firebase UID không khớp');
+      }
+      if (!user.firebaseUid) {
+        user.firebaseUid = firebaseUid;
+        await this.userService.update(user.id, user);
+      }
+    }
+    const tokens = this.generateTokens(user);
+    return {
+      user,
+      ...tokens,
+    };
   }
 }
