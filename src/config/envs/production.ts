@@ -5,20 +5,21 @@ export const config = {
     logging: false,
     replication: {
       master: {
-        host: process.env.DB_HOST || 'masterHost',
-        port: process.env.DB_PORT || 3306,
-        username: process.env.DB_USER || 'username',
-        password: process.env.DB_PASSWORD || 'password',
-        database: process.env.DB_NAME || 'dbname',
+        host: process.env.DB_HOST || 'sportnow.postgres.database.azure.com',
+        port: process.env.DB_PORT || 5432,
+        username: process.env.DB_USER || 'duy',
+        password: process.env.DB_PASSWORD || 'Duyhbxm123123.',
+        database: process.env.DB_NAME || 'stadium_booking',
+        ssl: { rejectUnauthorized: false },
       },
       slaves: [
         {
-          // fix if necessary
-          host: 'slaveHost',
-          port: 3306,
-          username: 'username',
-          password: process.env.DB_PASSWORD || 'password',
-          database: 'dbname',
+         host: process.env.DB_HOST || 'sportnow.postgres.database.azure.com',
+        port: process.env.DB_PORT || 5432,
+        username: process.env.DB_USER || 'duy',
+        password: process.env.DB_PASSWORD || 'Duyhbxm123123.',
+        database: process.env.DB_NAME || 'stadium_booking',
+        ssl: { rejectUnauthorized: false },
         },
       ],
     },
