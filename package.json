@@ -9,8 +9,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "postinstall": "npm run build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "node dist/main.js", 
     "start:dev": "nest start --watch",
     "start:dev:watch": "npm run dev",
     "start:debug": "nest start --debug --watch",

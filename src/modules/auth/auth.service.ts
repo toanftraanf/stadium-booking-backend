@@ -273,14 +273,11 @@ export class AuthService {
       throw new BadRequestException('Số điện thoại đã được đăng ký');
     }
 
-    const otpCode = await this.otpService.sendOTP(phoneNumber);
     return await this.userService.create({
       phoneNumber,
       fullName,
       role: UserRole.OWNER,
       isVerified: false,
-      verifyCode: otpCode,
-      verifyCodeExpiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME),
     });
   }
 
@@ -296,14 +293,11 @@ export class AuthService {
       throw new BadRequestException('Số điện thoại đã được đăng ký');
     }
 
-    const otpCode = await this.otpService.sendOTP(phoneNumber);
     return await this.userService.create({
       phoneNumber,
       fullName,
       role: UserRole.CUSTOMER,
       isVerified: false,
-      verifyCode: otpCode,
-      verifyCodeExpiresAt: new Date(Date.now() + OTP_EXPIRATION_TIME),
     });
   }
 
