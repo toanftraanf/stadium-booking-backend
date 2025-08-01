@@ -57,11 +57,12 @@ export class AuthService {
       role: user.role,
     };
 
-    console.log('payload', payload);
-    console.log('jwtSecret', this.configService.get<string>('jwtSecret'));
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '1h',
+    });
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('jwtRefreshSecret'),
+      secret: process.env.JWT_REFRESH_SECRET,
       expiresIn: '30d',
     });
 
@@ -159,7 +160,7 @@ export class AuthService {
     userRole: UserRole,
   ): Promise<User> {
     const user = await this.userService.findByPhoneNumber(phoneNumber);
-    const otpCode = await this.otpService.sendOTP(phoneNumber);
+    const otpCode = '';
     if (!user) {
       return await this.userService.create({
         phoneNumber,
